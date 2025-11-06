@@ -9,6 +9,8 @@ public class ReporteMedico {
     public LocalDate fechaReporte;
     public String descripcionReporte;
 
+    public ReporteMedico(){}
+
 
     public ReporteMedico(int idReporte, LocalDate fechaReporte, Animales idAnimales,
                          Enfermedad idEnfermedad, Tratamiento idTratamiento, String descripcionReporte) {

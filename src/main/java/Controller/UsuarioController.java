@@ -1,13 +1,15 @@
 package Controller;
 
 import Model.Usuario;
+import Model.Rol;
 import Repository.UsuarioRepository;
 import io.javalin.http.Context;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UsuarioController {
-    private  final UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
 
     public UsuarioController(UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
@@ -156,6 +158,56 @@ public class UsuarioController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", "Error al eliminar usuario: " + e.getMessage());
+            ctx.status(500).json(response);
+        }
+    }
+
+    public void buscarPorNombre(Context ctx) {
+        try {
+            String nombre = ctx.queryParam("nombre");
+
+            if (nombre == null || nombre.trim().isEmpty()) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "El parámetro 'nombre' es requerido");
+                ctx.status(400).json(response);
+                return;
+            }
+
+            Usuario usuario = usuarioRepository.buscarPorNombre(nombre);
+
+            if (usuario != null) {
+                ctx.status(200).json(usuario);
+            } else {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "No se encontró usuario con el nombre: " + nombre);
+                ctx.status(404).json(response);
+            }
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Error al buscar usuario por nombre: " + e.getMessage());
+            ctx.status(500).json(response);
+        }
+    }
+
+    public void buscarPorRol(Context ctx) {
+        try {
+            int idRol = ctx.queryParamAsClass("idRol", Integer.class).get();
+
+            Rol rol = new Rol(idRol, "");
+            List<Usuario> usuarios = usuarioRepository.buscarPorRol(rol);
+
+            if (!usuarios.isEmpty()) {
+                ctx.status(200).json(usuarios);
+            } else {
+                ctx.status(204).result("No se encontraron usuarios con el rol especificado");
+            }
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Error al buscar usuarios por rol: " + e.getMessage());
             ctx.status(500).json(response);
         }
     }

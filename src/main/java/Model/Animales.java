@@ -1,4 +1,5 @@
 package Model;
+import Model.Raza;
 
 import java.time.LocalDate;
 
@@ -14,16 +15,20 @@ public class Animales {
     public LocalDate fecha1erParto;
     public LocalDate fecha1erMonta;
     public String nombreAnimal;
-    public Raza raza; //HACE CATALOGO
+    public Raza raza;
     public String descripcionAnimal;
     public String estadoActual;
     public boolean sexo;
-    //Arreglo de pesos
+    public HistorialParto idHistorialParto;
+
+
+    public Animales() {
+    }
 
     public Animales(int idAnimal, int numArete, String nombreAnimal, long pesoNacimiento, long pesoActual,
-                  LocalDate fechaNacimiento, LocalDate fechaDestete, LocalDate fecha1erParto,
-                  LocalDate fecha1erMonta, Raza raza, boolean sexo, int numCrias,
-                  String descripcionAnimal, String estadoActual) {
+                    LocalDate fechaNacimiento, LocalDate fechaDestete, LocalDate fecha1erParto,
+                    LocalDate fecha1erMonta, Raza raza, boolean sexo, int numCrias,
+                    String descripcionAnimal, String estadoActual, HistorialParto idHistorialParto) {
 
         this.idAnimal = idAnimal;
         this.numArete = numArete;
@@ -39,9 +44,13 @@ public class Animales {
         this.numCrias = numCrias;
         this.descripcionAnimal = descripcionAnimal;
         this.estadoActual = estadoActual;
+        this.idHistorialParto = idHistorialParto;
     }
 
- //getters
+
+
+
+    //getters
     public int getIdAnimal() { return idAnimal; }
     public int getNumArete() { return numArete; }
     public String getNombreAnimal() { return nombreAnimal; }
@@ -57,6 +66,9 @@ public class Animales {
     public String getDescripcionAnimal() { return descripcionAnimal; }
     public String getEstadoActual() { return estadoActual; }
 
+    public HistorialParto getIdHistorialParto() {
+        return idHistorialParto;
+    }
 //setters
 
     public void setNombreAnimal(String nombreAnimal) { this.nombreAnimal = nombreAnimal; }
@@ -68,6 +80,8 @@ public class Animales {
     public void setDescripcionAnimal(String descripcionAnimal) { this.descripcionAnimal = descripcionAnimal; }
     public void setEstadoActual(String estadoActual) { this.estadoActual = estadoActual; }
 
-
+    public void setIdHistorialParto(HistorialParto idHistorialParto) {
+        this.idHistorialParto = idHistorialParto;
+    }
 }
 

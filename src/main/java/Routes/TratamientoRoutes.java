@@ -17,5 +17,6 @@ public class TratamientoRoutes {
         app.post("/tratamientos", tratamientoController::crearTratamiento);
         app.put("/tratamientos/{id}", tratamientoController::actualizarTratamiento);
         app.delete("/tratamientos/{id}", tratamientoController::eliminarTratamiento);
+
     }
 }

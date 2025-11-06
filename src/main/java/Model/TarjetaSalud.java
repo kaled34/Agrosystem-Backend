@@ -10,6 +10,8 @@ public class TarjetaSalud {
     public String historialTratamientos;
     public String descripcionReporte;
 
+    public TarjetaSalud(){}
+
     public TarjetaSalud(int idTarjeta, Animales idAnimal, Enfermedad idEnfermedad, Tratamiento idTratamiento,
                         String historialEnfermedades, String historialTratamientos,
                         String descripcionReporte) {

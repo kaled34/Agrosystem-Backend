@@ -12,6 +12,8 @@ public class Tratamiento {
     public String evolucion;
     public String nombreVeterinario;
 
+    public  Tratamiento(){}
+
     public Tratamiento(int idTratamiento, String nombreTratamiento, int idMedicamento,
                        LocalDate fechaInicio, LocalDate fechaFinal, String descripcionReporte,
                        String evolucion, String nombreVeterinario, Animales idAnimal) {

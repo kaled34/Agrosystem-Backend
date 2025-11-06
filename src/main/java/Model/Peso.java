@@ -5,6 +5,7 @@ public class Peso {
     public long pesoNacimiento;
     public double pesoActual;
 
+public Peso(){}
 
     public Peso(int idPeso,int idAnimal, long pesoNacimiento, long pesoActual, String raza, boolean sexo) {
         this.pesoNacimiento = pesoNacimiento;

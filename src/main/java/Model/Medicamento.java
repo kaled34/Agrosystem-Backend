@@ -9,6 +9,8 @@ public class Medicamento {
     public float cantidadMedicamento;
     public String viaAdministracion;
 
+    public Medicamento(){
+    }
 
     public Medicamento(int idMedicamento, int idAnimal, String nombreMedicamento, String principioActivo, String descripcionMedicamento, String fechaCaducidad, float cantidadMedicamento, String viaAdministracion, Animales idAnimales) {
         this.idMedicamento = idMedicamento;

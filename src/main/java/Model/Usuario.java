@@ -7,6 +7,8 @@ public class Usuario {
     public String contrasena;
     public Rol rol;
 
+    public Usuario(){}
+
     public Usuario(int idUsuario, String nombre, String contrasena, Rol rol) {
         this.idUsuario = idUsuario;
         this.nombre = nombre;

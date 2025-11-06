@@ -16,5 +16,8 @@ public class UsuarioRoutes {
         app.post("/usuarios", usuarioController::crearUsuario);
         app.put("/usuarios/{id}", usuarioController::actualizar);
         app.delete("/usuarios/{id}", usuarioController::eliminar);
+        app.get("/usuarios/nombre", usuarioController::buscarPorNombre);
+        app.get("/usuarios/rol", usuarioController::buscarPorRol);
+
     }
 }

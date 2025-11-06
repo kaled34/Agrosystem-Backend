@@ -1,6 +1,9 @@
 package org.Agrova;
 
 import io.javalin.Javalin;
+import io.javalin.json.JavalinJackson;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.Map;
 
 // Importar Repositorios (están en paquete Repository)
@@ -45,7 +48,7 @@ import Routes.RolRoutes;
 public class Main {
     public static void main(String[] args) {
 
-        // ========== CREAR REPOSITORIOS ==========
+
         AnimalesRepository animalesRepository = new AnimalesRepository();
         EnfermedadRepository enfermedadRepository = new EnfermedadRepository();
         MedicamentoRepository medicamentoRepository = new MedicamentoRepository();
@@ -55,7 +58,6 @@ public class Main {
         PesoRepository pesoRepository = new PesoRepository();
         RolRepository rolRepository = new RolRepository();
 
-        // ========== CREAR SERVICIOS ==========
         AnimalesService animalesService = new AnimalesService(animalesRepository);
         EnfermedadService enfermedadService = new EnfermedadService(enfermedadRepository);
         MedicamentoService medicamentoService = new MedicamentoService(medicamentoRepository);
@@ -65,7 +67,6 @@ public class Main {
         PesoService pesoService = new PesoService(pesoRepository);
         RolService rolService = new RolService(rolRepository);
 
-        // ========== CREAR CONTROLLERS ==========
         AnimalesController animalesController = new AnimalesController(animalesService);
         EnfermedadController enfermedadController = new EnfermedadController(enfermedadService);
         MedicamentoController medicamentoController = new MedicamentoController(medicamentoService);
@@ -75,16 +76,13 @@ public class Main {
         PesoController pesoController = new PesoController(pesoService);
         RolController rolController = new RolController(rolService);
 
-        // ========== CREAR SERVIDOR JAVALIN ==========
         Javalin app = Javalin.create().start(7000);
 
         System.out.println("🚀 Servidor iniciado en: http://localhost:7000");
         System.out.println("📡 API lista para recibir peticiones");
         System.out.println("================================");
 
-        // ========== REGISTRAR RUTAS ==========
 
-        // Ruta de inicio
         app.get("/", ctx -> {
             ctx.json(Map.of(
                     "mensaje", "Bienvenido a la API de Agrova",
@@ -102,7 +100,6 @@ public class Main {
             ));
         });
 
-        // Registrar rutas de cada módulo
         new AnimalesRoutes(animalesController).register(app);
         new EnfermedadRoutes(enfermedadController).register(app);
         new MedicamentoRoutes(medicamentoController).register(app);

@@ -9,9 +9,15 @@ public class Enfermedad {
     public String sintomas;
     public String cuidadosPreventivos;
     public String duracion;
+    public Analisis idAnalisis;
+
+    public Enfermedad (){
+
+    }
+
 
     public Enfermedad(int idEnfermedad, String nombreEnfermedad, String descripcionEnfermedad,
-                      String sintomas, String cuidadosPreventivos, String duracion, int diasDuracion) {
+                      String sintomas, String cuidadosPreventivos, String duracion, int diasDuracion, Analisis idAnalisis) {
 
         this.idEnfermedad = idEnfermedad;
         this.nombreEnfermedad = nombreEnfermedad;
@@ -20,6 +26,7 @@ public class Enfermedad {
         this.cuidadosPreventivos = cuidadosPreventivos;
         this.duracion = duracion;
         this.diasDuracion = diasDuracion;
+        this.idAnalisis = idAnalisis;
     }
 
 
@@ -52,6 +59,10 @@ public class Enfermedad {
         return diasDuracion;
     }
 
+    public Analisis getIdAnalisis() {
+        return idAnalisis;
+    }
+
 
     //settewrs
     public void setNombreEnfermedad(String nombreEnfermedad) {
@@ -78,4 +89,7 @@ public class Enfermedad {
         this.diasDuracion = diasDuracion;
     }
 
+    public void setIdAnalisis(Analisis idAnalisis) {
+        this.idAnalisis = idAnalisis;
+    }
 }
