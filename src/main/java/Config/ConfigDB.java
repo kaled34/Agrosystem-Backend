@@ -1,5 +1,5 @@
 package Config;
-/*
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.eclipse.jetty.util.security.Password;
@@ -15,7 +15,7 @@ public class ConfigDB {
             String host = "127.0.0.1";
             String port = "3306";
             String user = "root";
-            String dbName = "Agrova";
+            String dbName = "agrova";
             String username = "root";
             String password = "root";
             String url = "jdbc:mysql://" + host + ":" + port + "/" + dbName;
@@ -31,4 +31,4 @@ public class ConfigDB {
         return dataSource;
     }
 
-} */
+}
