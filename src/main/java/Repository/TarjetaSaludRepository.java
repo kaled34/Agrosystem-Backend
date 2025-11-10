@@ -13,7 +13,7 @@ import java.util.List;
 public class TarjetaSaludRepository {
 
     public TarjetaSalud crear(TarjetaSalud tarjeta) {
-        String sql = "INSERT INTO TarjetaSalud (idAnimal, idEnfermedad, idTratamiento, " +
+        String sql = "INSERT INTO tarjetasalud (idAnimal, idEnfermedad, idTratamiento, " +
                 "historialEnfermedades, historialTratamientos, descripcionReporte) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -43,7 +43,7 @@ public class TarjetaSaludRepository {
     }
 
     public TarjetaSalud buscarPorId(int idTarjeta) {
-        String sql = "SELECT * FROM TarjetaSalud WHERE idTarjeta = ?";
+        String sql = "SELECT * FROM tarjetasalud WHERE idTarjeta = ?";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -65,7 +65,7 @@ public class TarjetaSaludRepository {
 
     public List<TarjetaSalud> obtenerTodos() {
         List<TarjetaSalud> tarjetas = new ArrayList<>();
-        String sql = "SELECT * FROM TarjetaSalud";
+        String sql = "SELECT * FROM tarjetasalud";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              Statement stmt = conn.createStatement();
@@ -83,7 +83,7 @@ public class TarjetaSaludRepository {
     }
 
     public TarjetaSalud actualizar(TarjetaSalud tarjeta) {
-        String sql = "UPDATE TarjetaSalud SET idAnimal = ?, idEnfermedad = ?, idTratamiento = ?, " +
+        String sql = "UPDATE tarjetasalud SET idAnimal = ?, idEnfermedad = ?, idTratamiento = ?, " +
                 "historialEnfermedades = ?, historialTratamientos = ?, descripcionReporte = ? " +
                 "WHERE idTarjeta = ?";
 
@@ -112,7 +112,7 @@ public class TarjetaSaludRepository {
     }
 
     public boolean eliminar(int idTarjeta) {
-        String sql = "DELETE FROM TarjetaSalud WHERE idTarjeta = ?";
+        String sql = "DELETE FROM tarjetasalud WHERE idTarjeta = ?";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -128,7 +128,7 @@ public class TarjetaSaludRepository {
     }
 
     public TarjetaSalud buscarPorAnimal(int idAnimal) {
-        String sql = "SELECT * FROM TarjetaSalud WHERE idAnimal = ?";
+        String sql = "SELECT * FROM tarjetasalud WHERE idAnimal = ?";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -149,7 +149,7 @@ public class TarjetaSaludRepository {
     }
 
     public int obtenerTotal() {
-        String sql = "SELECT COUNT(*) FROM TarjetaSalud";
+        String sql = "SELECT COUNT(*) FROM tarjetasalud";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              Statement stmt = conn.createStatement();

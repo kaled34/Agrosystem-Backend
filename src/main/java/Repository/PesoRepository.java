@@ -10,7 +10,7 @@ import java.util.List;
 public class PesoRepository {
 
     public Peso crear(Peso peso) {
-        String sql = "INSERT INTO Peso (pesoNacimiento, pesoActual) VALUES (?, ?)";
+        String sql = "INSERT INTO peso (pesoNacimiento, pesoActual) VALUES (?, ?)";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -34,7 +34,7 @@ public class PesoRepository {
     }
 
     public Peso buscarPorId(int idPeso) {
-        String sql = "SELECT * FROM Peso WHERE idPeso = ?";
+        String sql = "SELECT * FROM peso WHERE idPeso = ?";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -56,7 +56,7 @@ public class PesoRepository {
 
     public List<Peso> obtenerTodos() {
         List<Peso> pesos = new ArrayList<>();
-        String sql = "SELECT * FROM Peso";
+        String sql = "SELECT * FROM peso";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              Statement stmt = conn.createStatement();
@@ -97,7 +97,7 @@ public class PesoRepository {
     }
 
     public boolean eliminar(int idPeso) {
-        String sql = "DELETE FROM Peso WHERE idPeso = ?";
+        String sql = "DELETE FROM peso WHERE idPeso = ?";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -113,7 +113,7 @@ public class PesoRepository {
     }
 
     public int obtenerTotal() {
-        String sql = "SELECT COUNT(*) FROM Peso";
+        String sql = "SELECT COUNT(*) FROM peso";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              Statement stmt = conn.createStatement();

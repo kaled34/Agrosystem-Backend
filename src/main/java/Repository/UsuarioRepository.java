@@ -11,7 +11,7 @@ import java.util.List;
 public class UsuarioRepository {
 
     public Usuario crear(Usuario usuario) {
-        String sql = "INSERT INTO Usuario (nombre, contrasena, idRol) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO usuario (nombre, contrasena, idRol) VALUES (?, ?, ?)";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -36,7 +36,7 @@ public class UsuarioRepository {
     }
 
     public Usuario buscarPorId(int idUsuario) {
-        String sql = "SELECT u.*, r.nombre as nombreRol FROM Usuario u " +
+        String sql = "SELECT u.*, r.nombre as nombreRol FROM usuario u " +
                 "INNER JOIN Rol r ON u.idRol = r.idRol " +
                 "WHERE u.idUsuario = ?";
 
@@ -60,7 +60,7 @@ public class UsuarioRepository {
 
     public List<Usuario> obtenerTodos() {
         List<Usuario> usuarios = new ArrayList<>();
-        String sql = "SELECT u.*, r.nombre as nombreRol FROM Usuario u " +
+        String sql = "SELECT u.*, r.nombre as nombreRol FROM usuario u " +
                 "INNER JOIN Rol r ON u.idRol = r.idRol";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
@@ -79,7 +79,7 @@ public class UsuarioRepository {
     }
 
     public Usuario actualizar(Usuario usuario) {
-        String sql = "UPDATE Usuario SET nombre = ?, contrasena = ?, idRol = ? WHERE idUsuario = ?";
+        String sql = "UPDATE usuario SET nombre = ?, contrasena = ?, idRol = ? WHERE idUsuario = ?";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -103,7 +103,7 @@ public class UsuarioRepository {
     }
 
     public boolean eliminar(int idUsuario) {
-        String sql = "DELETE FROM Usuario WHERE idUsuario = ?";
+        String sql = "DELETE FROM usuario WHERE idUsuario = ?";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -119,7 +119,7 @@ public class UsuarioRepository {
     }
 
     public Usuario buscarPorNombre(String nombre) {
-        String sql = "SELECT u.*, r.nombre as nombreRol FROM Usuario u " +
+        String sql = "SELECT u.*, r.nombre as nombreRol FROM usuario u " +
                 "INNER JOIN Rol r ON u.idRol = r.idRol " +
                 "WHERE u.nombre = ?";
 
@@ -143,7 +143,7 @@ public class UsuarioRepository {
 
     public List<Usuario> buscarPorRol(Rol rol) {
         List<Usuario> usuarios = new ArrayList<>();
-        String sql = "SELECT u.*, r.nombre as nombreRol FROM Usuario u " +
+        String sql = "SELECT u.*, r.nombre as nombreRol FROM usuario u " +
                 "INNER JOIN Rol r ON u.idRol = r.idRol " +
                 "WHERE u.idRol = ?";
 
@@ -166,7 +166,7 @@ public class UsuarioRepository {
     }
 
     public Usuario validarCredenciales(String nombre, String contrasena) {
-        String sql = "SELECT u.*, r.nombre as nombreRol FROM Usuario u " +
+        String sql = "SELECT u.*, r.nombre as nombreRol FROM usuario u " +
                 "INNER JOIN Rol r ON u.idRol = r.idRol " +
                 "WHERE u.nombre = ? AND u.contrasena = ?";
 
@@ -190,7 +190,7 @@ public class UsuarioRepository {
     }
 
     public int obtenerTotal() {
-        String sql = "SELECT COUNT(*) FROM Usuario";
+        String sql = "SELECT COUNT(*) FROM usuario";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              Statement stmt = conn.createStatement();

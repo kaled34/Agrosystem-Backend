@@ -10,7 +10,7 @@ import java.util.List;
 public class RolRepository {
 
     public Rol crear(Rol rol) {
-        String sql = "INSERT INTO Rol (nombre) VALUES (?)";
+        String sql = "INSERT INTO rol (nombre) VALUES (?)";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -32,7 +32,7 @@ public class RolRepository {
     }
 
     public Rol buscarPorId(int idRol) {
-        String sql = "SELECT * FROM Rol WHERE idRol = ?";
+        String sql = "SELECT * FROM rol WHERE idRol = ?";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -54,7 +54,7 @@ public class RolRepository {
 
     public List<Rol> obtenerTodos() {
         List<Rol> roles = new ArrayList<>();
-        String sql = "SELECT * FROM Rol";
+        String sql = "SELECT * FROM rol";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              Statement stmt = conn.createStatement();
@@ -72,7 +72,7 @@ public class RolRepository {
     }
 
     public Rol actualizar(Rol rol) {
-        String sql = "UPDATE Rol SET nombre = ? WHERE idRol = ?";
+        String sql = "UPDATE rol SET nombre = ? WHERE idRol = ?";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -94,7 +94,7 @@ public class RolRepository {
     }
 
     public boolean eliminar(int idRol) {
-        String sql = "DELETE FROM Rol WHERE idRol = ?";
+        String sql = "DELETE FROM rol WHERE idRol = ?";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -110,7 +110,7 @@ public class RolRepository {
     }
 
     public Rol buscarPorNombre(String nombre) {
-        String sql = "SELECT * FROM Rol WHERE nombre = ?";
+        String sql = "SELECT * FROM rol WHERE nombre = ?";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -131,7 +131,7 @@ public class RolRepository {
     }
 
     public int obtenerTotal() {
-        String sql = "SELECT COUNT(*) FROM Rol";
+        String sql = "SELECT COUNT(*) FROM rol";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              Statement stmt = conn.createStatement();

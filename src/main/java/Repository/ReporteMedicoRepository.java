@@ -14,7 +14,7 @@ import java.util.List;
 public class ReporteMedicoRepository {
 
     public ReporteMedico crear(ReporteMedico reporte) {
-        String sql = "INSERT INTO ReporteMedico (idAnimal, idEnfermedad, idTratamiento, " +
+        String sql = "INSERT INTO reportemedico (idAnimal, idEnfermedad, idTratamiento, " +
                 "fechaReporte, descripcionReporte) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
@@ -64,7 +64,7 @@ public class ReporteMedicoRepository {
 
     public List<ReporteMedico> obtenerTodos() {
         List<ReporteMedico> reportes = new ArrayList<>();
-        String sql = "SELECT * FROM ReporteMedico";
+        String sql = "SELECT * FROM reportemedico";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              Statement stmt = conn.createStatement();
@@ -82,7 +82,7 @@ public class ReporteMedicoRepository {
     }
 
     public ReporteMedico actualizar(ReporteMedico reporte) {
-        String sql = "UPDATE ReporteMedico SET idAnimal = ?, idEnfermedad = ?, idTratamiento = ?, " +
+        String sql = "UPDATE reportemedico SET idAnimal = ?, idEnfermedad = ?, idTratamiento = ?, " +
                 "fechaReporte = ?, descripcionReporte = ? WHERE idReporte = ?";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
@@ -109,7 +109,7 @@ public class ReporteMedicoRepository {
     }
 
     public boolean eliminar(int idReporte) {
-        String sql = "DELETE FROM ReporteMedico WHERE idReporte = ?";
+        String sql = "DELETE FROM reportemedico WHERE idReporte = ?";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -126,7 +126,7 @@ public class ReporteMedicoRepository {
 
     public List<ReporteMedico> buscarPorAnimal(int idAnimal) {
         List<ReporteMedico> reportes = new ArrayList<>();
-        String sql = "SELECT * FROM ReporteMedico WHERE idAnimal = ?";
+        String sql = "SELECT * FROM reportemedico WHERE idAnimal = ?";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -148,7 +148,7 @@ public class ReporteMedicoRepository {
 
     public List<ReporteMedico> buscarPorFecha(LocalDate fecha) {
         List<ReporteMedico> reportes = new ArrayList<>();
-        String sql = "SELECT * FROM ReporteMedico WHERE fechaReporte = ?";
+        String sql = "SELECT * FROM reportemedico WHERE fechaReporte = ?";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -169,7 +169,7 @@ public class ReporteMedicoRepository {
     }
 
     public int obtenerTotal() {
-        String sql = "SELECT COUNT(*) FROM ReporteMedico";
+        String sql = "SELECT COUNT(*) FROM reportemedico";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              Statement stmt = conn.createStatement();
