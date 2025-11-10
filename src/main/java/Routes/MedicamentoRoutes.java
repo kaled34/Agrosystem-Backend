@@ -12,10 +12,10 @@ public class MedicamentoRoutes {
     }
 
     public void register(Javalin app) {
-        app.get("/medicamentos", medicamentoController::obtenerTodosMedicamentos);
-        app.get("/medicamentos/{id}", medicamentoController::buscarMedicamentoPorId);
-        app.post("/medicamentos", medicamentoController::crearMedicamento);
-        app.put("/medicamentos/{id}", medicamentoController::actualizarMedicamento);
-        app.delete("/medicamentos/{id}", medicamentoController::eliminarMedicamento);
+        app.get("/medicamento", medicamentoController::obtenerTodosMedicamentos);
+        app.get("/medicamento/{id}", medicamentoController::buscarMedicamentoPorId);
+        app.post("/medicamento", medicamentoController::crearMedicamento);
+        app.put("/medicamento/{id}", medicamentoController::actualizarMedicamento);
+        app.delete("/medicamento/{id}", medicamentoController::eliminarMedicamento);
     }
 }

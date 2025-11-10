@@ -1,76 +1,246 @@
 package Repository;
 
+import Config.ConfigDB;
 import Model.Animales;
+import Model.HistorialParto;
+import Model.Raza;
+
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AnimalesRepository {
-    private List<Animales> animales;
-    private int contadorId;
-
-    public AnimalesRepository() {
-        this.animales = new ArrayList<>();
-        this.contadorId = 1;
-    }
 
     public Animales crear(Animales animal) {
-        animales.add(animal);
-        return animal;
+        String sql = "INSERT INTO animales (numArete, nombreAnimal, fechaNacimiento, fechaDestete, " +
+                "fecha1erParto, fecha1erMonta, " +
+                "numCrias, descripcionAnimal, estadoActual, idHistorialParto) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = ConfigDB.getDataSource().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            stmt.setInt(1, animal.getNumArete());
+            stmt.setString(2, animal.getNombreAnimal());
+            stmt.setLong(3, animal.getPesoNacimiento());
+            stmt.setLong(4, animal.getPesoActual());
+            stmt.setDate(5, animal.getFechaNacimiento() != null ? Date.valueOf(animal.getFechaNacimiento()) : null);
+            stmt.setDate(6, animal.getFechaDestete() != null ? Date.valueOf(animal.getFechaDestete()) : null);
+            stmt.setDate(7, animal.getFecha1erParto() != null ? Date.valueOf(animal.getFecha1erParto()) : null);
+            stmt.setDate(8, animal.getFecha1erMonta() != null ? Date.valueOf(animal.getFecha1erMonta()) : null);
+            stmt.setString(9, animal.getRaza() != null ? animal.getRaza().getNombre() : null);
+            stmt.setBoolean(10, animal.isSexo());
+            stmt.setInt(11, animal.getNumCrias());
+            stmt.setString(12, animal.getDescripcionAnimal());
+            stmt.setString(13, animal.getEstadoActual());
+            stmt.setObject(14, animal.getIdHistorialParto() != null ? animal.getIdHistorialParto().getIdHistorialParto() : null);
+
+            stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    animal.idAnimal = rs.getInt(1);
+                }
+            }
+
+            return animal;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al crear animal: " + e.getMessage(), e);
+        }
     }
 
     public Animales buscarPorId(int idAnimal) {
-        for (Animales animal : animales) {
-            if (animal.getIdAnimal() == idAnimal) {
-                return animal;
+        String sql = "SELECT * FROM animales WHERE idAnimal = ?";
+
+        try (Connection conn = ConfigDB.getDataSource().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idAnimal);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapearAnimal(rs);
+                }
             }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al buscar animal: " + e.getMessage(), e);
         }
+
         return null;
     }
 
     public List<Animales> obtenerTodos() {
-        return new ArrayList<>(animales);
+        List<Animales> animales = new ArrayList<>();
+        String sql = "SELECT * FROM animales";
+
+        try (Connection conn = ConfigDB.getDataSource().getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                animales.add(mapearAnimal(rs));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al obtener animales: " + e.getMessage(), e);
+        }
+
+        return animales;
     }
 
-    public Animales actualizar(Animales animalActualizado) {
-        for (int i = 0; i < animales.size(); i++) {
-            if (animales.get(i).getIdAnimal() == animalActualizado.getIdAnimal()) {
-                animales.set(i, animalActualizado);
-                return animalActualizado;
+    public Animales actualizar(Animales animal) {
+        String sql = "UPDATE animales SET numArete = ?, nombreAnimal = ?, pesoNacimiento = ?, " +
+                "pesoActual = ?, fechaNacimiento = ?, fechaDestete = ?, fecha1erParto = ?, " +
+                "fecha1erMonta = ?, raza = ?, sexo = ?, numCrias = ?, descripcionAnimal = ?, " +
+                "estadoActual = ?, idHistorialParto = ? WHERE idAnimal = ?";
+
+        try (Connection conn = ConfigDB.getDataSource().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, animal.getNumArete());
+            stmt.setString(2, animal.getNombreAnimal());
+            stmt.setLong(3, animal.getPesoNacimiento());
+            stmt.setLong(4, animal.getPesoActual());
+            stmt.setDate(5, animal.getFechaNacimiento() != null ? Date.valueOf(animal.getFechaNacimiento()) : null);
+            stmt.setDate(6, animal.getFechaDestete() != null ? Date.valueOf(animal.getFechaDestete()) : null);
+            stmt.setDate(7, animal.getFecha1erParto() != null ? Date.valueOf(animal.getFecha1erParto()) : null);
+            stmt.setDate(8, animal.getFecha1erMonta() != null ? Date.valueOf(animal.getFecha1erMonta()) : null);
+            stmt.setString(9, animal.getRaza() != null ? animal.getRaza().getNombre() : null);
+            stmt.setBoolean(10, animal.isSexo());
+            stmt.setInt(11, animal.getNumCrias());
+            stmt.setString(12, animal.getDescripcionAnimal());
+            stmt.setString(13, animal.getEstadoActual());
+            stmt.setObject(14, animal.getIdHistorialParto() != null ? animal.getIdHistorialParto().getIdHistorialParto() : null);
+            stmt.setInt(15, animal.getIdAnimal());
+
+            int rowsAffected = stmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                return animal;
             }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al actualizar animal: " + e.getMessage(), e);
         }
+
         return null;
     }
 
     public boolean eliminar(int idAnimal) {
-        for (int i = 0; i < animales.size(); i++) {
-            if (animales.get(i).getIdAnimal() == idAnimal) {
-                animales.remove(i);
-                return true;
-            }
+        String sql = "DELETE FROM animales WHERE idAnimal = ?";
+
+        try (Connection conn = ConfigDB.getDataSource().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idAnimal);
+            int rowsAffected = stmt.executeUpdate();
+
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al eliminar animal: " + e.getMessage(), e);
         }
-        return false;
     }
 
     public List<Animales> buscarPorRaza(String raza) {
-        List<Animales> resultado = new ArrayList<>();
-        for (Animales animal : animales) {
-            if (animal.getRaza().equals(raza)) {
-                resultado.add(animal);
+        List<Animales> animales = new ArrayList<>();
+        String sql = "SELECT * FROM animales WHERE raza = ?";
+
+        try (Connection conn = ConfigDB.getDataSource().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, raza);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    animales.add(mapearAnimal(rs));
+                }
             }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al buscar por raza: " + e.getMessage(), e);
         }
-        return resultado;
+
+        return animales;
     }
+
     public List<Animales> buscarPorSexo(boolean sexo) {
-        List<Animales> resultado = new ArrayList<>();
-        for (Animales animal : animales) {
-            if (animal.isSexo() == sexo) {
-                resultado.add(animal);
+        List<Animales> animales = new ArrayList<>();
+        String sql = "SELECT * FROM animales WHERE sexo = ?";
+
+        try (Connection conn = ConfigDB.getDataSource().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setBoolean(1, sexo);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    animales.add(mapearAnimal(rs));
+                }
             }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al buscar por sexo: " + e.getMessage(), e);
         }
-        return resultado;
+
+        return animales;
     }
 
     public int obtenerTotal() {
-        return animales.size();
+        String sql = "SELECT COUNT(*) FROM animales";
+
+        try (Connection conn = ConfigDB.getDataSource().getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al obtener total: " + e.getMessage(), e);
+        }
+
+        return 0;
+    }
+
+    private Animales mapearAnimal(ResultSet rs) throws SQLException {
+        Animales animal = new Animales();
+        animal.idAnimal = rs.getInt("idAnimal");
+        animal.numArete = rs.getInt("numArete");
+        animal.nombreAnimal = rs.getString("nombreAnimal");
+        animal.pesoNacimiento = rs.getLong("pesoNacimiento");
+        animal.pesoActual = rs.getLong("pesoActual");
+
+        Date fechaNac = rs.getDate("fechaNacimiento");
+        animal.fechaNacimiento = fechaNac != null ? fechaNac.toLocalDate() : null;
+
+        Date fechaDest = rs.getDate("fechaDestete");
+        animal.fechaDestete = fechaDest != null ? fechaDest.toLocalDate() : null;
+
+        Date fecha1erP = rs.getDate("fecha1erParto");
+        animal.fecha1erParto = fecha1erP != null ? fecha1erP.toLocalDate() : null;
+
+        Date fecha1erM = rs.getDate("fecha1erMonta");
+        animal.fecha1erMonta = fecha1erM != null ? fecha1erM.toLocalDate() : null;
+
+        String razaStr = rs.getString("raza");
+        animal.raza = razaStr != null ? Raza.valueOf(razaStr) : null;
+
+        animal.sexo = rs.getBoolean("sexo");
+        animal.numCrias = rs.getInt("numCrias");
+        animal.descripcionAnimal = rs.getString("descripcionAnimal");
+        animal.estadoActual = rs.getString("estadoActual");
+
+        int idHistorial = rs.getInt("idHistorialParto");
+        if (!rs.wasNull()) {
+            HistorialParto historial = new HistorialParto();
+            historial.idHistorialParto = idHistorial;
+            animal.idHistorialParto = historial;
+        }
+
+        return animal;
     }
 }

@@ -1,55 +1,21 @@
 package org.Agrova;
 
+import Config.ConfigDB;
 import io.javalin.Javalin;
-import io.javalin.json.JavalinJackson;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.Map;
 
-
-// Importar Repositorios (están en paquete Repository)
-import Repository.AnimalesRepository;
-import Repository.EnfermedadRepository;
-import Repository.MedicamentoRepository;
-import Repository.TratamientoRepository;
-import Repository.ReporteMedicoRepository;
-import Repository.TarjetaSaludRepository;
-import Repository.PesoRepository;
-import Repository.RolRepository;
-// Importar Servicios (están en paquete Service)
-import Service.AnimalesService;
-import Service.EnfermedadService;
-import Service.MedicamentoService;
-import Service.TratamientoService;
-import Service.ReporteMedicoService;
-import Service.TarjetaSaludService;
-import Service.PesoService;
-import Service.RolService;
-
-// Importar Controllers (están en paquete Controller)
-import Controller.AnimalesController;
-import Controller.EnfermedadController;
-import Controller.MedicamentoController;
-import Controller.TratamientoController;
-import Controller.ReporteMedicoController;
-import Controller.TarjetaSaludController;
-import Controller.PesoController;
-import Controller.RolController;
-
-// Importar Routes (están en paquete Routes)
-import Routes.AnimalesRoutes;
-import Routes.EnfermedadRoutes;
-import Routes.MedicamentoRoutes;
-import Routes.TratamientoRoutes;
-import Routes.ReporteMedicoRoutes;
-import Routes.TarjetaSaludRoutes;
-import Routes.PesoRoutes;
-import Routes.RolRoutes;
+import Repository.*;
+import Service.*;
+import Controller.*;
+import Routes.*;
 
 public class Main {
     public static void main(String[] args) {
 
+        // Inicializar conexión a la base de datos
+        ConfigDB.getDataSource();
 
+        // Repositorios
         AnimalesRepository animalesRepository = new AnimalesRepository();
         EnfermedadRepository enfermedadRepository = new EnfermedadRepository();
         MedicamentoRepository medicamentoRepository = new MedicamentoRepository();
@@ -58,7 +24,9 @@ public class Main {
         TarjetaSaludRepository tarjetaSaludRepository = new TarjetaSaludRepository();
         PesoRepository pesoRepository = new PesoRepository();
         RolRepository rolRepository = new RolRepository();
+        UsuarioRepository usuarioRepository = new UsuarioRepository();
 
+        // Servicios
         AnimalesService animalesService = new AnimalesService(animalesRepository);
         EnfermedadService enfermedadService = new EnfermedadService(enfermedadRepository);
         MedicamentoService medicamentoService = new MedicamentoService(medicamentoRepository);
@@ -68,6 +36,7 @@ public class Main {
         PesoService pesoService = new PesoService(pesoRepository);
         RolService rolService = new RolService(rolRepository);
 
+        // Controladores
         AnimalesController animalesController = new AnimalesController(animalesService);
         EnfermedadController enfermedadController = new EnfermedadController(enfermedadService);
         MedicamentoController medicamentoController = new MedicamentoController(medicamentoService);
@@ -76,19 +45,31 @@ public class Main {
         TarjetaSaludController tarjetaSaludController = new TarjetaSaludController(tarjetaSaludService);
         PesoController pesoController = new PesoController(pesoService);
         RolController rolController = new RolController(rolService);
+        UsuarioController usuarioController = new UsuarioController(usuarioRepository);
 
-        Javalin app = Javalin.create().start(7000);
+        // Configurar Javalin con CORS
+        Javalin app = Javalin.create(config -> {
+            config.bundledPlugins.enableCors(cors -> {
+                cors.addRule(it -> {
+                    it.anyHost();
+                });
+            });
+        }).start(7000);
 
         System.out.println("🚀 Servidor iniciado en: http://localhost:7000");
         System.out.println("📡 API lista para recibir peticiones");
+        System.out.println("🗄️  Conectado a MySQL");
         System.out.println("================================");
 
-
+        // Ruta principal
         app.get("/", ctx -> {
             ctx.json(Map.of(
                     "mensaje", "Bienvenido a la API de Agrova",
                     "version", "1.0",
+                    "database", "MySQL",
                     "endpoints", Map.of(
+                            "login", "/login",
+                            "usuarios", "/usuarios",
                             "animales", "/animales",
                             "enfermedades", "/enfermedades",
                             "medicamentos", "/medicamentos",
@@ -101,6 +82,11 @@ public class Main {
             ));
         });
 
+        // Ruta de login
+        app.post("/login", usuarioController::login);
+
+        // Registrar rutas
+        new UsuarioRoutes(usuarioController).register(app);
         new AnimalesRoutes(animalesController).register(app);
         new EnfermedadRoutes(enfermedadController).register(app);
         new MedicamentoRoutes(medicamentoController).register(app);
@@ -113,12 +99,18 @@ public class Main {
         System.out.println("✅ Todas las rutas registradas exitosamente");
         System.out.println("================================");
         System.out.println("Endpoints disponibles:");
-        System.out.println("  GET    http://localhost:7000/");
+        System.out.println("  POST   http://localhost:7000/login");
+        System.out.println("  GET    http://localhost:7000/usuarios");
         System.out.println("  GET    http://localhost:7000/animales");
-        System.out.println("  POST   http://localhost:7000/animales");
-        System.out.println("  GET    http://localhost:7000/enfermedades");
-        System.out.println("  POST   http://localhost:7000/enfermedades");
-        System.out.println("  ... y más");
+        System.out.println("  GET    http://localhost:7000/roles");
         System.out.println("================================");
+
+        // Cerrar conexión al detener el servidor
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("\n🛑 Cerrando servidor...");
+            ConfigDB.close();
+            app.stop();
+            System.out.println("✅ Servidor cerrado correctamente");
+        }));
     }
 }

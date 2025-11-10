@@ -1,56 +1,140 @@
 package Repository;
+
+import Config.ConfigDB;
 import Model.Peso;
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PesoRepository {
-    private List<Peso> pesos;
-
-    public PesoRepository() {
-        this.pesos = new ArrayList<>();
-    }
 
     public Peso crear(Peso peso) {
-        pesos.add(peso);
-        return peso;
+        String sql = "INSERT INTO Peso (pesoNacimiento, pesoActual) VALUES (?, ?)";
+
+        try (Connection conn = ConfigDB.getDataSource().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            stmt.setLong(1, peso.getPesoNacimiento());
+            stmt.setDouble(2, peso.getPesoActual());
+
+            stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    peso.idPeso = rs.getInt(1);
+                }
+            }
+
+            return peso;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al crear peso: " + e.getMessage(), e);
+        }
     }
 
     public Peso buscarPorId(int idPeso) {
-        for (Peso peso : pesos) {
-            if (peso.getIdPeso() == idPeso) {
-                return peso;
+        String sql = "SELECT * FROM Peso WHERE idPeso = ?";
+
+        try (Connection conn = ConfigDB.getDataSource().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idPeso);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapearPeso(rs);
+                }
             }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al buscar peso: " + e.getMessage(), e);
         }
+
         return null;
     }
 
     public List<Peso> obtenerTodos() {
-        return new ArrayList<>(pesos);
+        List<Peso> pesos = new ArrayList<>();
+        String sql = "SELECT * FROM Peso";
+
+        try (Connection conn = ConfigDB.getDataSource().getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                pesos.add(mapearPeso(rs));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al obtener pesos: " + e.getMessage(), e);
+        }
+
+        return pesos;
     }
 
-    public Peso actualizar(Peso pesoActualizado) {
-        for (int i = 0; i < pesos.size(); i++) {
-            if (pesos.get(i).getIdPeso() == pesoActualizado.getIdPeso()) {
-                pesos.set(i, pesoActualizado);
-                return pesoActualizado;
+    public Peso actualizar(Peso peso) {
+        String sql = "UPDATE Peso SET pesoNacimiento = ?, pesoActual = ? WHERE idPeso = ?";
+
+        try (Connection conn = ConfigDB.getDataSource().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, peso.getPesoNacimiento());
+            stmt.setDouble(2, peso.getPesoActual());
+            stmt.setInt(3, peso.getIdPeso());
+
+            int rowsAffected = stmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                return peso;
             }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al actualizar peso: " + e.getMessage(), e);
         }
+
         return null;
     }
 
     public boolean eliminar(int idPeso) {
-        for (int i = 0; i < pesos.size(); i++) {
-            if (pesos.get(i).getIdPeso() == idPeso) {
-                pesos.remove(i);
-                return true;
-            }
+        String sql = "DELETE FROM Peso WHERE idPeso = ?";
+
+        try (Connection conn = ConfigDB.getDataSource().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idPeso);
+            int rowsAffected = stmt.executeUpdate();
+
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al eliminar peso: " + e.getMessage(), e);
         }
-        return false;
     }
 
-
     public int obtenerTotal() {
-        return pesos.size();
+        String sql = "SELECT COUNT(*) FROM Peso";
+
+        try (Connection conn = ConfigDB.getDataSource().getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al obtener total: " + e.getMessage(), e);
+        }
+
+        return 0;
+    }
+
+    private Peso mapearPeso(ResultSet rs) throws SQLException {
+        Peso peso = new Peso();
+        peso.idPeso = rs.getInt("idPeso");
+        peso.pesoNacimiento = rs.getLong("pesoNacimiento");
+        peso.pesoActual = rs.getDouble("pesoActual");
+        return peso;
     }
 }
