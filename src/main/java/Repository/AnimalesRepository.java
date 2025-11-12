@@ -2,9 +2,7 @@ package Repository;
 
 import Config.ConfigDB;
 import Model.Animales;
-import Model.HistorialParto;
 import Model.Raza;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,16 +12,14 @@ public class AnimalesRepository {
     public Animales crear(Animales animal) {
         String sql = "INSERT INTO animales (numArete, nombreAnimal, fechaNacimiento, fechaDestete, " +
                 "fecha1erParto, fecha1erMonta, " +
-                "numCrias, descripcionAnimal, estadoActual, idHistorialParto) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "numCrias, descripcionAnimal, estadoActual) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setInt(1, animal.getNumArete());
             stmt.setString(2, animal.getNombreAnimal());
-            stmt.setLong(3, animal.getPesoNacimiento());
-            stmt.setLong(4, animal.getPesoActual());
             stmt.setDate(5, animal.getFechaNacimiento() != null ? Date.valueOf(animal.getFechaNacimiento()) : null);
             stmt.setDate(6, animal.getFechaDestete() != null ? Date.valueOf(animal.getFechaDestete()) : null);
             stmt.setDate(7, animal.getFecha1erParto() != null ? Date.valueOf(animal.getFecha1erParto()) : null);
@@ -101,8 +97,6 @@ public class AnimalesRepository {
 
             stmt.setInt(1, animal.getNumArete());
             stmt.setString(2, animal.getNombreAnimal());
-            stmt.setLong(3, animal.getPesoNacimiento());
-            stmt.setLong(4, animal.getPesoActual());
             stmt.setDate(5, animal.getFechaNacimiento() != null ? Date.valueOf(animal.getFechaNacimiento()) : null);
             stmt.setDate(6, animal.getFechaDestete() != null ? Date.valueOf(animal.getFechaDestete()) : null);
             stmt.setDate(7, animal.getFecha1erParto() != null ? Date.valueOf(animal.getFecha1erParto()) : null);
@@ -211,8 +205,6 @@ public class AnimalesRepository {
         animal.idAnimal = rs.getInt("idAnimal");
         animal.numArete = rs.getInt("numArete");
         animal.nombreAnimal = rs.getString("nombreAnimal");
-        animal.pesoNacimiento = rs.getLong("pesoNacimiento");
-        animal.pesoActual = rs.getLong("pesoActual");
 
         Date fechaNac = rs.getDate("fechaNacimiento");
         animal.fechaNacimiento = fechaNac != null ? fechaNac.toLocalDate() : null;
@@ -234,12 +226,7 @@ public class AnimalesRepository {
         animal.descripcionAnimal = rs.getString("descripcionAnimal");
         animal.estadoActual = rs.getString("estadoActual");
 
-        int idHistorial = rs.getInt("idHistorialParto");
-        if (!rs.wasNull()) {
-            HistorialParto historial = new HistorialParto();
-            historial.idHistorialParto = idHistorial;
-            animal.idHistorialParto = historial;
-        }
+
 
         return animal;
     }

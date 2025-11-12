@@ -14,7 +14,7 @@ public class AnimalesService {
     }
 
     public Animales crearAnimal(Animales animal) {
-        if (animal.getPesoActual() <= 0) {
+        if (animal.getNombreAnimal() == null) {
             throw new IllegalArgumentException("El peso actual debe ser positivo.");
         }
 

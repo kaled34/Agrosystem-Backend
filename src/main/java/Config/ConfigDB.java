@@ -41,7 +41,7 @@ public class ConfigDB {
             config.addDataSourceProperty("maintainTimeStats", "false");
 
             dataSource = new HikariDataSource(config);
-            System.out.println("✅ Conexión a la base de datos establecida correctamente");
+            System.out.println(" Conexión a la base de datos establecida correctamente");
         }
         return dataSource;
     }
@@ -49,7 +49,7 @@ public class ConfigDB {
     public static void close() {
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();
-            System.out.println("❌ Conexión a la base de datos cerrada");
+            System.out.println("Conexión a la base de datos cerrada");
         }
     }
 }

@@ -58,7 +58,7 @@ public class Main {
 
         System.out.println("🚀 Servidor iniciado en: http://localhost:7000");
         System.out.println("📡 API lista para recibir peticiones");
-        System.out.println("🗄️  Conectado a MySQL");
+        System.out.println("🗄️   Conectado a MySQL");
         System.out.println("================================");
 
         // Ruta principal

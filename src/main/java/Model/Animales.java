@@ -7,8 +7,6 @@ public class Animales {
 
     public int idAnimal;
     public int numArete;
-    public long pesoNacimiento;
-    public long pesoActual;
     public int numCrias;
     public LocalDate fechaNacimiento;
     public LocalDate fechaDestete;
@@ -33,8 +31,6 @@ public class Animales {
         this.idAnimal = idAnimal;
         this.numArete = numArete;
         this.nombreAnimal = nombreAnimal;
-        this.pesoNacimiento = pesoNacimiento;
-        this.pesoActual = pesoActual;
         this.fechaNacimiento = fechaNacimiento;
         this.fechaDestete = fechaDestete;
         this.fecha1erParto = fecha1erParto;
@@ -54,8 +50,6 @@ public class Animales {
     public int getIdAnimal() { return idAnimal; }
     public int getNumArete() { return numArete; }
     public String getNombreAnimal() { return nombreAnimal; }
-    public long getPesoNacimiento() { return pesoNacimiento; }
-    public long getPesoActual() { return pesoActual; }
     public LocalDate getFechaNacimiento() { return fechaNacimiento; }
     public LocalDate getFechaDestete() { return fechaDestete; }
     public LocalDate getFecha1erParto() { return fecha1erParto; }
@@ -72,7 +66,6 @@ public class Animales {
 //setters
 
     public void setNombreAnimal(String nombreAnimal) { this.nombreAnimal = nombreAnimal; }
-    public void setPesoActual(long pesoActual) { this.pesoActual = pesoActual; }
     public void setFechaDestete(LocalDate fechaDestete) { this.fechaDestete = fechaDestete; }
     public void setFecha1erParto(LocalDate fecha1erParto) { this.fecha1erParto = fecha1erParto; }
     public void setFecha1erMonta(LocalDate fecha1erMonta) { this.fecha1erMonta = fecha1erMonta; }

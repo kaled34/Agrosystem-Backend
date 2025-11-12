@@ -34,7 +34,7 @@ public class AnimalesController {
         if (animal.isPresent()) {
             ctx.status(200).json(animal.get());
         } else {
-            ctx.status(404).result("Animal con ID " + id + " no encontrado.");
+            ctx.status(404).result("Animal con ID: " + id + " no encontrado.");
         }
     }
 
