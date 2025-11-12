@@ -3,17 +3,23 @@ package Model;
 
 public class Usuario {
     public int idUsuario;
-    public String nombre;
+    public String nombreUsuario;
     public String contrasena;
+    public String correo;
+    public String telefono;
     public Rol rol;
+    public boolean activo;
 
     public Usuario(){}
 
-    public Usuario(int idUsuario, String nombre, String contrasena, Rol rol) {
+    public Usuario(int idUsuario, String nombreUsuario, String contrasena, String correo, String telefono, Rol rol, boolean activo) {
         this.idUsuario = idUsuario;
-        this.nombre = nombre;
+        this.nombreUsuario= nombreUsuario;
         this.contrasena = contrasena;
+        this.correo = correo;
+        this.telefono = telefono;
         this.rol = rol;
+        this.activo = activo;
     }
 
     // Getters
@@ -21,8 +27,8 @@ public class Usuario {
         return idUsuario;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getNombreUsuario() {
+        return nombreUsuario;
     }
 
     public String getContrasena() {
@@ -33,16 +39,36 @@ public class Usuario {
         return rol;
     }
 
+    public String getCorreo() {
+        return correo;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
     // Setters
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setNombreUsuario(String nombreUsuario) {
+        this.nombreUsuario = nombreUsuario;
     }
 
     public void setContrasena(String contrasena) {
         this.contrasena = contrasena;
     }
 
+    public void setCorreo(String correo) {
+        this.correo = correo;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
     public void setRol(Rol rol) {
         this.rol = rol;
+    }
+
+    public boolean isActivo() {
+        return activo;
     }
 }

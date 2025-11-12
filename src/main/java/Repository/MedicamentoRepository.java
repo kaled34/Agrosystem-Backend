@@ -1,177 +1,175 @@
 package Repository;
 
-import Config.ConfigDB;
 import Model.Medicamento;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MedicamentoRepository {
+    private Connection connection;
 
-    public Medicamento crear(Medicamento medicamento) {
-        String sql = "INSERT INTO medicamento (nombreMedicamento, principioActivo, descripcionMedicamento, " +
-                "fechaCaducidad, cantidadMedicamento, viaAdministracion) VALUES (?, ?, ?, ?, ?, ?)";
+    public MedicamentoRepository(Connection connection) {
+        this.connection = connection;
+    }
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
+    // Crear un nuevo medicamento
+    public boolean crear(Medicamento medicamento) {
+        String sql = "INSERT INTO Medicamentos (nombre_medicamento, solucion, dosis, caducidad, via_administracion, composicion, indicaciones, frecuencia_aplicacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, medicamento.getNombreMedicamento());
-            stmt.setString(2, medicamento.getPrincipioActivo());
-            stmt.setString(3, medicamento.getDescripcionMedicamento());
-            stmt.setString(4, medicamento.getFechaCaducidad());
-            stmt.setFloat(5, medicamento.getCantidadMedicamento());
-            stmt.setString(6, medicamento.getViaAdministracion());
+            stmt.setString(2, medicamento.getSolucion());
+            stmt.setFloat(3, medicamento.getDosis());
+            stmt.setTimestamp(4, new Timestamp(medicamento.getCaducidad().getTime()));
+            stmt.setString(5, medicamento.getviaAdministracion());
+            stmt.setString(6, medicamento.getComposicion());
+            stmt.setString(7, medicamento.getIndicaciones());
+            stmt.setString(8, medicamento.getFrecuenciaAplicacion());
 
-            stmt.executeUpdate();
+            int affectedRows = stmt.executeUpdate();
 
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    medicamento.idMedicamento = rs.getInt(1);
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        medicamento.idMedicamento = generatedKeys.getInt(1);
+                    }
                 }
+                return true;
             }
-
-            return medicamento;
-
+            return false;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al crear medicamento: " + e.getMessage(), e);
+            e.printStackTrace();
+            return false;
         }
     }
 
-    public Medicamento buscarPorId(int idMedicamento) {
-        String sql = "SELECT * FROM medicamento WHERE idMedicamento = ?";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+    // Obtener medicamento por ID
+    public Medicamento obtenerPorId(int idMedicamento) {
+        String sql = "SELECT * FROM Medicamentos WHERE id_medicamento = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idMedicamento);
+            ResultSet rs = stmt.executeQuery();
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapearMedicamento(rs);
-                }
+            if (rs.next()) {
+                return mapearMedicamento(rs);
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar medicamento: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
         return null;
     }
 
+    // Obtener medicamento por nombre
+    public Medicamento obtenerPorNombre(String nombre) {
+        String sql = "SELECT * FROM Medicamentos WHERE nombre_medicamento = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, nombre);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return mapearMedicamento(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Obtener todos los medicamentos
     public List<Medicamento> obtenerTodos() {
         List<Medicamento> medicamentos = new ArrayList<>();
-        String sql = "SELECT * FROM medicamento";
+        String sql = "SELECT * FROM Medicamentos";
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             Statement stmt = conn.createStatement();
+        try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 medicamentos.add(mapearMedicamento(rs));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al obtener medicamentos: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
         return medicamentos;
     }
 
-    public Medicamento actualizar(Medicamento medicamento) {
-        String sql = "UPDATE medicamento SET nombreMedicamento = ?, principioActivo = ?, " +
-                "descripcionMedicamento = ?, fechaCaducidad = ?, cantidadMedicamento = ?, " +
-                "viaAdministracion = ? WHERE idMedicamento = ?";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, medicamento.getNombreMedicamento());
-            stmt.setString(2, medicamento.getPrincipioActivo());
-            stmt.setString(3, medicamento.getDescripcionMedicamento());
-            stmt.setString(4, medicamento.getFechaCaducidad());
-            stmt.setFloat(5, medicamento.getCantidadMedicamento());
-            stmt.setString(6, medicamento.getViaAdministracion());
-            stmt.setInt(7, medicamento.getIdMedicamento());
-
-            int rowsAffected = stmt.executeUpdate();
-
-            if (rowsAffected > 0) {
-                return medicamento;
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar medicamento: " + e.getMessage(), e);
-        }
-
-        return null;
-    }
-
-    public boolean eliminar(int idMedicamento) {
-        String sql = "DELETE FROM medicamento WHERE idMedicamento = ?";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, idMedicamento);
-            int rowsAffected = stmt.executeUpdate();
-
-            return rowsAffected > 0;
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al eliminar medicamento: " + e.getMessage(), e);
-        }
-    }
-
-    public List<Medicamento> buscarPorNombre(String nombre) {
+    // Obtener medicamentos próximos a caducar
+    public List<Medicamento> obtenerProximosACaducar(int diasAnticipacion) {
         List<Medicamento> medicamentos = new ArrayList<>();
-        String sql = "SELECT * FROM medicamento WHERE nombreMedicamento LIKE ?";
+        String sql = "SELECT * FROM Medicamentos WHERE caducidad <= DATE_ADD(NOW(), INTERVAL ? DAY) AND caducidad >= NOW()";
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, diasAnticipacion);
+            ResultSet rs = stmt.executeQuery();
 
-            stmt.setString(1, "%" + nombre + "%");
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    medicamentos.add(mapearMedicamento(rs));
-                }
+            while (rs.next()) {
+                medicamentos.add(mapearMedicamento(rs));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar por nombre: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
         return medicamentos;
     }
 
-    public int obtenerTotal() {
-        String sql = "SELECT COUNT(*) FROM medicamento";
+    // Obtener medicamentos caducados
+    public List<Medicamento> obtenerCaducados() {
+        List<Medicamento> medicamentos = new ArrayList<>();
+        String sql = "SELECT * FROM Medicamentos WHERE caducidad < NOW()";
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             Statement stmt = conn.createStatement();
+        try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
-            if (rs.next()) {
-                return rs.getInt(1);
+            while (rs.next()) {
+                medicamentos.add(mapearMedicamento(rs));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al obtener total: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
-        return 0;
+        return medicamentos;
     }
 
+    // Actualizar medicamento
+    public boolean actualizar(Medicamento medicamento) {
+        String sql = "UPDATE Medicamentos SET nombre_medicamento = ?, dosis = ?, caducidad = ?, composicion = ?, indicaciones = ?, frecuencia_aplicacion = ?, via_administracion = ? WHERE id_medicamento = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, medicamento.getNombreMedicamento());
+            stmt.setFloat(2, medicamento.getDosis());
+            stmt.setTimestamp(3, new Timestamp(medicamento.getCaducidad().getTime()));
+            stmt.setString(4, medicamento.getComposicion());
+            stmt.setString(5, medicamento.getIndicaciones());
+            stmt.setString(6, medicamento.getFrecuenciaAplicacion());
+            stmt.setString(7, medicamento.getViaAdministracion());
+            stmt.setInt(8, medicamento.getIdMedicamento());
+
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Eliminar medicamento
+    public boolean eliminar(int idMedicamento) {
+        String sql = "DELETE FROM Medicamentos WHERE id_medicamento = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idMedicamento);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Método auxiliar para mapear ResultSet a objeto Medicamento
     private Medicamento mapearMedicamento(ResultSet rs) throws SQLException {
-        Medicamento medicamento = new Medicamento();
-        medicamento.idMedicamento = rs.getInt("idMedicamento");
-        medicamento.nombreMedicamento = rs.getString("nombreMedicamento");
-        medicamento.principioActivo = rs.getString("principioActivo");
-        medicamento.descripcionMedicamento = rs.getString("descripcionMedicamento");
-        medicamento.fechaCaducidad = rs.getString("fechaCaducidad");
-        medicamento.cantidadMedicamento = rs.getFloat("cantidadMedicamento");
-        medicamento.viaAdministracion = rs.getString("viaAdministracion");
-        return medicamento;
+        return new Medicamento(
+                rs.getInt("id_medicamento"),
+                rs.getString("nombre_medicamento"),
+                rs.getString("solucion"),
+                rs.getFloat("dosis"),
+                new java.util.Date(rs.getTimestamp("caducidad").getTime()),
+                rs.getString("via_administracion"),
+                rs.getString("composicion"),
+                rs.getString("indicaciones"),
+                rs.getString("frecuencia_aplicacion")
+        );
     }
 }

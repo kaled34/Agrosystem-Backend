@@ -1,27 +1,32 @@
 package Model;
+
+import java.util.Date;
+
 public class Medicamento {
 
     public int idMedicamento;
     public String nombreMedicamento;
-    public String principioActivo;
-    public String descripcionMedicamento;
-    public String fechaCaducidad;
-    public float cantidadMedicamento;
+    public String solucion;
+    public  float dosis;
+    public Date caducidad;
     public String viaAdministracion;
-    public Animales idAnimal;
+    public String composicion;
+    public String indicaciones;
+    public  String frecuenciaAplicacion;
 
     public Medicamento(){
     }
 
-    public Medicamento(int idMedicamento, Animales idAnimal, String nombreMedicamento, String principioActivo, String descripcionMedicamento, String fechaCaducidad, float cantidadMedicamento, String viaAdministracion, Animales idAnimales) {
+    public Medicamento(int idMedicamento, String nombreMedicamento, String solucion,float dosis, Date caducidad, String viaAdministracion,String composicion, String indicaciones, String frecuenciaAplicacion) {
         this.idMedicamento = idMedicamento;
         this.nombreMedicamento = nombreMedicamento;
-        this.principioActivo = principioActivo;
-        this.descripcionMedicamento = descripcionMedicamento;
-        this.fechaCaducidad = fechaCaducidad;
-        this.cantidadMedicamento = cantidadMedicamento;
+        this.solucion = solucion;
+        this.dosis = dosis;
+        this.caducidad = caducidad;
         this.viaAdministracion = viaAdministracion;
-        this.idAnimal = idAnimal;
+        this.composicion = composicion;
+        this.indicaciones = indicaciones;
+        this.frecuenciaAplicacion = frecuenciaAplicacion;
     }
 
     //Getters
@@ -33,47 +38,55 @@ public class Medicamento {
         return nombreMedicamento;
     }
 
+    public String getSolucion() {
+        return solucion;
+    }
+
+    public float getDosis() {
+        return dosis;
+    }
+
+    public Date getCaducidad() {
+        return caducidad;
+    }
+
+    public String getComposicion() {
+        return composicion;
+    }
+
+    public String getIndicaciones() {
+        return indicaciones;
+    }
+
+    public String getFrecuenciaAplicacion() {
+        return frecuenciaAplicacion;
+    }
+
+    //Setters
+
+
     public void setNombreMedicamento(String nombreMedicamento) {
         this.nombreMedicamento = nombreMedicamento;
     }
 
-    public String getPrincipioActivo() {
-        return principioActivo;
+    public void setDosis(float dosis) {
+        this.dosis = dosis;
     }
 
-    public void setPrincipioActivo(String principioActivo) {
-        this.principioActivo = principioActivo;
+    public void setCaducidad(Date caducidad) {
+        this.caducidad = caducidad;
     }
 
-    public String getDescripcionMedicamento() {
-        return descripcionMedicamento;
+    public void setComposicion(String composicion) {
+        this.composicion = composicion;
     }
 
-    public Animales getIdAnimal() {return idAnimal; }
-
-    //Setters
-    public void setDescripcionMedicamento(String descripcionMedicamento) {
-        this.descripcionMedicamento = descripcionMedicamento;
+    public void setIndicaciones(String indicaciones) {
+        this.indicaciones = indicaciones;
     }
 
-    public String getFechaCaducidad() {
-        return fechaCaducidad;
-    }
-
-    public void setFechaCaducidad(String fechaCaducidad) {
-        this.fechaCaducidad = fechaCaducidad;
-    }
-
-    public float getCantidadMedicamento() {
-        return cantidadMedicamento;
-    }
-
-    public void setCantidadMedicamento(float cantidadMedicamento) {
-        this.cantidadMedicamento = cantidadMedicamento;
-    }
-
-    public String getViaAdministracion() {
-        return viaAdministracion;
+    public void setFrecuenciaAplicacion(String frecuenciaAplicacion) {
+        this.frecuenciaAplicacion = frecuenciaAplicacion;
     }
 
     public void setViaAdministracion(String viaAdministracion) {

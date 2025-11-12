@@ -1,209 +1,220 @@
 package Repository;
 
-import Config.ConfigDB;
 import Model.Enfermedad;
+import Model.Medicamento;
 import Model.Analisis;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EnfermedadRepository {
+    private Connection connection;
+    private MedicamentoRepository medicamentoRepository;
+    private AnalisisRepository analisisRepository;
 
-    public Enfermedad crear(Enfermedad enfermedad) {
-        String sql = "INSERT INTO Enfermedad (nombreEnfermedad, descripcionEnfermedad, sintomas, " +
-                "cuidadosPreventivos, duracion, diasDuracion, idAnalisis) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    public EnfermedadRepository(Connection connection) {
+        this.connection = connection;
+        this.medicamentoRepository = new MedicamentoRepository(connection);
+        this.analisisRepository = new AnalisisRepository(connection);
+    }
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
+    // Crear una nueva enfermedad
+    public boolean crear(Enfermedad enfermedad) {
+        String sql = "INSERT INTO Enfermedad (nombre_enfermedad, tipo_enfermedad, sintomas, duracion_estimada, tratamientos_recomendados, id_medicamento, nivel_riesgo, modo_transmision, id_analisis) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, enfermedad.getNombreEnfermedad());
-            stmt.setString(2, enfermedad.getDescripcionEnfermedad());
+            stmt.setString(2, enfermedad.getTipoEnfermedad());
             stmt.setString(3, enfermedad.getSintomas());
-            stmt.setString(4, enfermedad.getCuidadosPreventivos());
-            stmt.setString(5, enfermedad.getDuracion());
-            stmt.setInt(6, enfermedad.getDiasDuracion());
-            stmt.setObject(7, enfermedad.getIdAnalisis() != null ? enfermedad.getIdAnalisis().getIdAnalisis() : null);
+            stmt.setInt(4, enfermedad.getDuracionEstimada());
+            stmt.setString(5, enfermedad.getTratamientosRecomendados());
 
-            stmt.executeUpdate();
-
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    enfermedad.idEnfermedad = rs.getInt(1);
-                }
+            if (enfermedad.getIdMedicamento() != null) {
+                stmt.setInt(6, enfermedad.getIdMedicamento().getIdMedicamento());
+            } else {
+                stmt.setNull(6, Types.INTEGER);
             }
 
-            return enfermedad;
+            stmt.setString(7, enfermedad.getNivelRiesgo());
+            stmt.setString(8, enfermedad.getModoTransmision());
 
+            if (enfermedad.getIdAnalisis() != null) {
+                stmt.setInt(9, enfermedad.getIdAnalisis().getIdAnalisis());
+            } else {
+                stmt.setNull(9, Types.INTEGER);
+            }
+
+            int affectedRows = stmt.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        enfermedad.idEnfermedad = generatedKeys.getInt(1);
+                    }
+                }
+                return true;
+            }
+            return false;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al crear enfermedad: " + e.getMessage(), e);
+            e.printStackTrace();
+            return false;
         }
     }
 
-    public Enfermedad buscarPorId(int idEnfermedad) {
-        String sql = "SELECT * FROM Enfermedad WHERE idEnfermedad = ?";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+    // Obtener enfermedad por ID
+    public Enfermedad obtenerPorId(int idEnfermedad) {
+        String sql = "SELECT * FROM Enfermedad WHERE id_enfermedad = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idEnfermedad);
+            ResultSet rs = stmt.executeQuery();
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapearEnfermedad(rs);
-                }
+            if (rs.next()) {
+                return mapearEnfermedad(rs);
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar enfermedad: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
         return null;
     }
 
-    public List<Enfermedad> obtenerTodos() {
+    // Obtener enfermedad por nombre
+    public Enfermedad obtenerPorNombre(String nombreEnfermedad) {
+        String sql = "SELECT * FROM Enfermedad WHERE nombre_enfermedad = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, nombreEnfermedad);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return mapearEnfermedad(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Obtener todas las enfermedades
+    public List<Enfermedad> obtenerTodas() {
         List<Enfermedad> enfermedades = new ArrayList<>();
         String sql = "SELECT * FROM Enfermedad";
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             Statement stmt = conn.createStatement();
+        try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 enfermedades.add(mapearEnfermedad(rs));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al obtener enfermedades: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
         return enfermedades;
     }
 
-    public Enfermedad actualizar(Enfermedad enfermedad) {
-        String sql = "UPDATE Enfermedad SET nombreEnfermedad = ?, descripcionEnfermedad = ?, " +
-                "sintomas = ?, cuidadosPreventivos = ?, duracion = ?, diasDuracion = ?, " +
-                "idAnalisis = ? WHERE idEnfermedad = ?";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, enfermedad.getNombreEnfermedad());
-            stmt.setString(2, enfermedad.getDescripcionEnfermedad());
-            stmt.setString(3, enfermedad.getSintomas());
-            stmt.setString(4, enfermedad.getCuidadosPreventivos());
-            stmt.setString(5, enfermedad.getDuracion());
-            stmt.setInt(6, enfermedad.getDiasDuracion());
-            stmt.setObject(7, enfermedad.getIdAnalisis() != null ? enfermedad.getIdAnalisis().getIdAnalisis() : null);
-            stmt.setInt(8, enfermedad.getIdEnfermedad());
-
-            int rowsAffected = stmt.executeUpdate();
-
-            if (rowsAffected > 0) {
-                return enfermedad;
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar enfermedad: " + e.getMessage(), e);
-        }
-
-        return null;
-    }
-
-    public boolean eliminar(int idEnfermedad) {
-        String sql = "DELETE FROM Enfermedad WHERE idEnfermedad = ?";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, idEnfermedad);
-            int rowsAffected = stmt.executeUpdate();
-
-            return rowsAffected > 0;
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al eliminar enfermedad: " + e.getMessage(), e);
-        }
-    }
-
-    public List<Enfermedad> buscarPorNombre(String nombre) {
+    // Obtener enfermedades por tipo
+    public List<Enfermedad> obtenerPorTipo(String tipoEnfermedad) {
         List<Enfermedad> enfermedades = new ArrayList<>();
-        String sql = "SELECT * FROM Enfermedad WHERE nombreEnfermedad LIKE ?";
+        String sql = "SELECT * FROM Enfermedad WHERE tipo_enfermedad = ?";
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, tipoEnfermedad);
+            ResultSet rs = stmt.executeQuery();
 
-            stmt.setString(1, "%" + nombre + "%");
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    enfermedades.add(mapearEnfermedad(rs));
-                }
+            while (rs.next()) {
+                enfermedades.add(mapearEnfermedad(rs));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar por nombre: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
         return enfermedades;
     }
 
-    public Enfermedad buscarPorNombreExacto(String nombre) {
-        String sql = "SELECT * FROM Enfermedad WHERE nombreEnfermedad = ?";
+    // Obtener enfermedades por nivel de riesgo
+    public List<Enfermedad> obtenerPorNivelRiesgo(String nivelRiesgo) {
+        List<Enfermedad> enfermedades = new ArrayList<>();
+        String sql = "SELECT * FROM Enfermedad WHERE nivel_riesgo = ?";
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, nivelRiesgo);
+            ResultSet rs = stmt.executeQuery();
 
-            stmt.setString(1, nombre);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapearEnfermedad(rs);
-                }
+            while (rs.next()) {
+                enfermedades.add(mapearEnfermedad(rs));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar por nombre exacto: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
-        return null;
+        return enfermedades;
     }
 
-    public int obtenerTotal() {
-        String sql = "SELECT COUNT(*) FROM Enfermedad";
+    // Actualizar enfermedad
+    public boolean actualizar(Enfermedad enfermedad) {
+        String sql = "UPDATE Enfermedad SET nombre_enfermedad = ?, tipo_enfermedad = ?, sintomas = ?, duracion_estimada = ?, tratamientos_recomendados = ?, id_medicamento = ?, nivel_riesgo = ?, modo_transmision = ?, id_analisis = ? WHERE id_enfermedad = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, enfermedad.getNombreEnfermedad());
+            stmt.setString(2, enfermedad.getTipoEnfermedad());
+            stmt.setString(3, enfermedad.getSintomas());
+            stmt.setInt(4, enfermedad.getDuracionEstimada());
+            stmt.setString(5, enfermedad.getTratamientosRecomendados());
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            if (rs.next()) {
-                return rs.getInt(1);
+            if (enfermedad.getIdMedicamento() != null) {
+                stmt.setInt(6, enfermedad.getIdMedicamento().getIdMedicamento());
+            } else {
+                stmt.setNull(6, Types.INTEGER);
             }
 
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al obtener total: " + e.getMessage(), e);
-        }
+            stmt.setString(7, enfermedad.getNivelRiesgo());
+            stmt.setString(8, enfermedad.getModoTransmision());
 
-        return 0;
+            if (enfermedad.getIdAnalisis() != null) {
+                stmt.setInt(9, enfermedad.getIdAnalisis().getIdAnalisis());
+            } else {
+                stmt.setNull(9, Types.INTEGER);
+            }
+
+            stmt.setInt(10, enfermedad.getIdEnfermedad());
+
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
+    // Eliminar enfermedad
+    public boolean eliminar(int idEnfermedad) {
+        String sql = "DELETE FROM Enfermedad WHERE id_enfermedad = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idEnfermedad);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Método auxiliar para mapear ResultSet a objeto Enfermedad
     private Enfermedad mapearEnfermedad(ResultSet rs) throws SQLException {
-        Enfermedad enfermedad = new Enfermedad();
-        enfermedad.idEnfermedad = rs.getInt("idEnfermedad");
-        enfermedad.nombreEnfermedad = rs.getString("nombreEnfermedad");
-        enfermedad.descripcionEnfermedad = rs.getString("descripcionEnfermedad");
-        enfermedad.sintomas = rs.getString("sintomas");
-        enfermedad.cuidadosPreventivos = rs.getString("cuidadosPreventivos");
-        enfermedad.duracion = rs.getString("duracion");
-        enfermedad.diasDuracion = rs.getInt("diasDuracion");
-
-        int idAnalisis = rs.getInt("idAnalisis");
-        if (!rs.wasNull()) {
-            Analisis analisis = new Analisis();
-            analisis.idAnalisis = idAnalisis;
-            enfermedad.idAnalisis = analisis;
+        Medicamento medicamento = null;
+        if (rs.getInt("id_medicamento") > 0) {
+            medicamento = medicamentoRepository.obtenerPorId(rs.getInt("id_medicamento"));
         }
 
-        return enfermedad;
+        Analisis analisis = null;
+        if (rs.getInt("id_analisis") > 0) {
+            analisis = analisisRepository.obtenerPorId(rs.getInt("id_analisis"));
+        }
+
+        return new Enfermedad(
+                rs.getInt("id_enfermedad"),
+                rs.getString("nombre_enfermedad"),
+                rs.getString("tipo_enfermedad"),
+                rs.getString("sintomas"),
+                rs.getInt("duracion_estimada"),
+                rs.getString("tratamientos_recomendados"),
+                medicamento,
+                "", // descripcionEnfermedad no existe en BD
+                rs.getString("nivel_riesgo"),
+                rs.getString("modo_transmision"),
+                analisis
+        );
     }
 }

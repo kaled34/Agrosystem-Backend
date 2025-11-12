@@ -6,23 +6,15 @@ public class TarjetaSalud {
     public Animales idAnimal;
     public Enfermedad idEnfermedad;
     public Tratamiento idTratamiento;
-    public String historialEnfermedades;
-    public String historialTratamientos;
-    public String descripcionReporte;
 
     public TarjetaSalud(){}
 
-    public TarjetaSalud(int idTarjeta, Animales idAnimal, Enfermedad idEnfermedad, Tratamiento idTratamiento,
-                        String historialEnfermedades, String historialTratamientos,
-                        String descripcionReporte) {
+    public TarjetaSalud(int idTarjeta, Animales idAnimal, Enfermedad idEnfermedad, Tratamiento idTratamiento) {
 
         this.idTarjeta = idTarjeta;
         this.idAnimal = idAnimal;
         this.idEnfermedad = idEnfermedad;
         this.idTratamiento = idTratamiento;
-        this.historialEnfermedades = historialEnfermedades;
-        this.historialTratamientos = historialTratamientos;
-        this.descripcionReporte = descripcionReporte;
     }
 
     //getters
@@ -42,17 +34,6 @@ public class TarjetaSalud {
         return idTratamiento;
     }
 
-    public String getHistorialEnfermedades() {
-        return historialEnfermedades;
-    }
-
-    public String getHistorialTratamientos() {
-        return historialTratamientos;
-    }
-
-    public String getDescripcionReporte() {
-        return descripcionReporte;
-    }
 
     //setters
 
@@ -68,17 +49,4 @@ public class TarjetaSalud {
     public void setIdTratamiento(Tratamiento idTratamiento) {
         this.idTratamiento = idTratamiento;
     }
-
-    public void setHistorialEnfermedades(String historialEnfermedades) {
-        this.historialEnfermedades = historialEnfermedades;
-    }
-
-    public void setHistorialTratamientos(String historialTratamientos) {
-        this.historialTratamientos = historialTratamientos;
-    }
-
-    public void setDescripcionReporte(String descripcionReporte) {
-        this.descripcionReporte = descripcionReporte;
-    }
-
 }

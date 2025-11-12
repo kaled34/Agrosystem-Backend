@@ -1,157 +1,110 @@
 package Repository;
 
-import Config.ConfigDB;
 import Model.Rol;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RolRepository {
+    private Connection connection;
 
-    public Rol crear(Rol rol) {
-        String sql = "INSERT INTO rol (nombre) VALUES (?)";
+    public RolRepository(Connection connection) {
+        this.connection = connection;
+    }
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
+    // Crear un nuevo rol
+    public boolean crear(Rol rol) {
+        String sql = "INSERT INTO Rol (nombre_rol) VALUES (?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, rol.getNombre());
-            stmt.executeUpdate();
+            int affectedRows = stmt.executeUpdate();
 
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    rol.idRol = rs.getInt(1);
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        rol.idRol = generatedKeys.getInt(1);
+                    }
                 }
+                return true;
             }
-
-            return rol;
-
+            return false;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al crear rol: " + e.getMessage(), e);
+            e.printStackTrace();
+            return false;
         }
     }
 
-    public Rol buscarPorId(int idRol) {
-        String sql = "SELECT * FROM rol WHERE idRol = ?";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+    // Obtener rol por ID
+    public Rol obtenerPorId(int idRol) {
+        String sql = "SELECT * FROM Rol WHERE id_rol = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idRol);
+            ResultSet rs = stmt.executeQuery();
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapearRol(rs);
-                }
+            if (rs.next()) {
+                return new Rol(
+                        rs.getInt("id_rol"),
+                        rs.getString("nombre_rol")
+                );
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar rol: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
         return null;
     }
 
+    // Obtener todos los roles
     public List<Rol> obtenerTodos() {
         List<Rol> roles = new ArrayList<>();
-        String sql = "SELECT * FROM rol";
+        String sql = "SELECT * FROM Rol";
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             Statement stmt = conn.createStatement();
+        try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                roles.add(mapearRol(rs));
+                roles.add(new Rol(
+                        rs.getInt("id_rol"),
+                        rs.getString("nombre_rol")
+                ));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al obtener roles: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
         return roles;
     }
 
-    public Rol actualizar(Rol rol) {
-        String sql = "UPDATE rol SET nombre = ? WHERE idRol = ?";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+    // Actualizar rol
+    public boolean actualizar(Rol rol) {
+        String sql = "UPDATE Rol SET nombre_rol = ? WHERE id_rol = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, rol.getNombre());
             stmt.setInt(2, rol.getIdRol());
 
-            int rowsAffected = stmt.executeUpdate();
-
-            if (rowsAffected > 0) {
-                return rol;
-            }
-
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar rol: " + e.getMessage(), e);
+            e.printStackTrace();
+            return false;
         }
-
-        return null;
     }
 
+    // Eliminar rol
     public boolean eliminar(int idRol) {
-        String sql = "DELETE FROM rol WHERE idRol = ?";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+        String sql = "DELETE FROM Rol WHERE id_rol = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idRol);
-            int rowsAffected = stmt.executeUpdate();
-
-            return rowsAffected > 0;
-
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al eliminar rol: " + e.getMessage(), e);
+            e.printStackTrace();
+            return false;
         }
     }
+    public String obtenerPorNombre(String nombre) {
+        String sql = "SELECT * FROM rol WHERE nombreRol";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)){
+                stmt.setString(1, nombre);
+            ResultSet rs = stmt.executeQuery();
 
-    public Rol buscarPorNombre(String nombre) {
-        String sql = "SELECT * FROM rol WHERE nombre = ?";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, nombre);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapearRol(rs);
-                }
             }
 
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar rol por nombre: " + e.getMessage(), e);
         }
-
-        return null;
     }
-
-    public int obtenerTotal() {
-        String sql = "SELECT COUNT(*) FROM rol";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al obtener total: " + e.getMessage(), e);
-        }
-
-        return 0;
-    }
-
-    private Rol mapearRol(ResultSet rs) throws SQLException {
-        Rol rol = new Rol();
-        rol.idRol = rs.getInt("idRol");
-        rol.nombre = rs.getString("nombre");
-        return rol;
-    }
-}

@@ -18,11 +18,11 @@ public class EnfermedadService {
             throw new IllegalArgumentException("El nombre de la enfermedad es obligatorio.");
         }
 
-        if (enfermedadRepository.buscarPorNombreExacto(enfermedad.getNombreEnfermedad()) != null) {
+        if (enfermedadRepository.obtenerPorNombre(enfermedad.getNombreEnfermedad()) != null) {
             throw new IllegalArgumentException("Ya existe una enfermedad con el nombre: " + enfermedad.getNombreEnfermedad());
         }
 
-        if (enfermedad.getDiasDuracion() < 0) {
+        if (enfermedad.duracionEstimada < 0) {
             throw new IllegalArgumentException("Los días de duración no pueden ser negativos.");
         }
 
@@ -30,25 +30,22 @@ public class EnfermedadService {
     }
 
     public List<Enfermedad> obtenerTodas() {
-        return enfermedadRepository.obtenerTodos();
+        return enfermedadRepository.obtenerTodas();
     }
 
-
     public Optional<Enfermedad> buscarPorId(int id) {
-        Enfermedad enfermedad = enfermedadRepository.buscarPorId(id);
+        Enfermedad enfermedad = enfermedadRepository.obtenerPorId(id);
         return Optional.ofNullable(enfermedad);
     }
 
     public Enfermedad actualizarEnfermedad(Enfermedad enfermedadActualizada) {
-        if (enfermedadRepository.buscarPorId(enfermedadActualizada.getIdEnfermedad()) == null) {
+        if (enfermedadRepository.obtenerPorId(enfermedadActualizada.getIdEnfermedad()) == null) {
             return null;
         }
-
 
         if (enfermedadActualizada.getNombreEnfermedad() == null || enfermedadActualizada.getNombreEnfermedad().trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre de la enfermedad es obligatorio.");
         }
-
 
         return enfermedadRepository.actualizar(enfermedadActualizada);
     }

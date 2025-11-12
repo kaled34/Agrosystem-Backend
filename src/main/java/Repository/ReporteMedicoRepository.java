@@ -1,221 +1,208 @@
 package Repository;
 
-import Config.ConfigDB;
 import Model.ReporteMedico;
 import Model.Animales;
-import Model.Enfermedad;
-import Model.Tratamiento;
-
+import Model.Usuario;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ReporteMedicoRepository {
+    private Connection connection;
+    private AnimalesRepository animalRepository;
+    private UsuarioRepository usuarioRepository;
 
-    public ReporteMedico crear(ReporteMedico reporte) {
-        String sql = "INSERT INTO reportemedico (idAnimal, idEnfermedad, idTratamiento, " +
-                "fechaReporte, descripcionReporte) VALUES (?, ?, ?, ?, ?)";
+    public ReporteMedicoRepository(Connection connection) {
+        this.connection = connection;
+        this.animalRepository = new AnimalesRepository(connection);
+        this.usuarioRepository = new UsuarioRepository(connection);
+    }
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+    // Crear un nuevo reporte médico
+    public boolean crear(ReporteMedico reporte) {
+        String sql = "INSERT INTO ReporteMedico (id_animal, id_usuario, temperatura, condicion_corporal, frecuencia_respiratoria, fecha, diagnostico_presuntivo, diagnostico_definitivo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setInt(1, reporte.getIdAnimales().getIdAnimal());
+            stmt.setInt(2, reporte.getIdUsuario().getIdUsuario());
+            stmt.setDouble(3, reporte.getTemperatura());
+            stmt.setString(4, reporte.getCondicionCorporal());
+            stmt.setInt(5, reporte.getFrecuenciaRespiratoria());
+            stmt.setDate(6, Date.valueOf(reporte.getFecha()));
+            stmt.setString(7, reporte.getDiagnosticoPresuntivo());
+            stmt.setString(8, reporte.getDiagnosticoDefinitivo());
 
-            stmt.setObject(1, reporte.getIdAnimales() != null ? reporte.getIdAnimales().getIdAnimal() : null);
-            stmt.setObject(2, reporte.getIdEnfermedad() != null ? reporte.getIdEnfermedad().getIdEnfermedad() : null);
-            stmt.setObject(3, reporte.getIdTratamiento() != null ? reporte.getIdTratamiento().getIdTratamiento() : null);
-            stmt.setDate(4, reporte.getFechaReporte() != null ? Date.valueOf(reporte.getFechaReporte()) : null);
-            stmt.setString(5, reporte.getDescripcionReporte());
+            int affectedRows = stmt.executeUpdate();
 
-            stmt.executeUpdate();
-
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    reporte.idReporte = rs.getInt(1);
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        reporte.idReporte = generatedKeys.getInt(1);
+                    }
                 }
+                return true;
             }
-
-            return reporte;
-
+            return false;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al crear reporte médico: " + e.getMessage(), e);
+            e.printStackTrace();
+            return false;
         }
     }
 
-    public ReporteMedico buscarPorId(int idReporte) {
-        String sql = "SELECT * FROM ReporteMedico WHERE idReporte = ?";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+    // Obtener reporte médico por ID
+    public ReporteMedico obtenerPorId(int idReporte) {
+        String sql = "SELECT * FROM ReporteMedico WHERE id_reporte = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idReporte);
+            ResultSet rs = stmt.executeQuery();
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapearReporte(rs);
-                }
+            if (rs.next()) {
+                return mapearReporte(rs);
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar reporte: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
         return null;
     }
 
+    // Obtener todos los reportes médicos
     public List<ReporteMedico> obtenerTodos() {
         List<ReporteMedico> reportes = new ArrayList<>();
-        String sql = "SELECT * FROM reportemedico";
+        String sql = "SELECT * FROM ReporteMedico ORDER BY fecha DESC";
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             Statement stmt = conn.createStatement();
+        try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 reportes.add(mapearReporte(rs));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al obtener reportes: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
         return reportes;
     }
 
-    public ReporteMedico actualizar(ReporteMedico reporte) {
-        String sql = "UPDATE reportemedico SET idAnimal = ?, idEnfermedad = ?, idTratamiento = ?, " +
-                "fechaReporte = ?, descripcionReporte = ? WHERE idReporte = ?";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setObject(1, reporte.getIdAnimales() != null ? reporte.getIdAnimales().getIdAnimal() : null);
-            stmt.setObject(2, reporte.getIdEnfermedad() != null ? reporte.getIdEnfermedad().getIdEnfermedad() : null);
-            stmt.setObject(3, reporte.getIdTratamiento() != null ? reporte.getIdTratamiento().getIdTratamiento() : null);
-            stmt.setDate(4, reporte.getFechaReporte() != null ? Date.valueOf(reporte.getFechaReporte()) : null);
-            stmt.setString(5, reporte.getDescripcionReporte());
-            stmt.setInt(6, reporte.getIdReporte());
-
-            int rowsAffected = stmt.executeUpdate();
-
-            if (rowsAffected > 0) {
-                return reporte;
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar reporte: " + e.getMessage(), e);
-        }
-
-        return null;
-    }
-
-    public boolean eliminar(int idReporte) {
-        String sql = "DELETE FROM reportemedico WHERE idReporte = ?";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, idReporte);
-            int rowsAffected = stmt.executeUpdate();
-
-            return rowsAffected > 0;
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al eliminar reporte: " + e.getMessage(), e);
-        }
-    }
-
-    public List<ReporteMedico> buscarPorAnimal(int idAnimal) {
+    // Obtener reportes por animal
+    public List<ReporteMedico> obtenerPorAnimal(int idAnimal) {
         List<ReporteMedico> reportes = new ArrayList<>();
-        String sql = "SELECT * FROM reportemedico WHERE idAnimal = ?";
+        String sql = "SELECT * FROM ReporteMedico WHERE id_animal = ? ORDER BY fecha DESC";
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idAnimal);
+            ResultSet rs = stmt.executeQuery();
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    reportes.add(mapearReporte(rs));
-                }
+            while (rs.next()) {
+                reportes.add(mapearReporte(rs));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar por animal: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
         return reportes;
     }
 
-    public List<ReporteMedico> buscarPorFecha(LocalDate fecha) {
+    // Obtener reportes por usuario (veterinario)
+    public List<ReporteMedico> obtenerPorUsuario(int idUsuario) {
         List<ReporteMedico> reportes = new ArrayList<>();
-        String sql = "SELECT * FROM reportemedico WHERE fechaReporte = ?";
+        String sql = "SELECT * FROM ReporteMedico WHERE id_usuario = ? ORDER BY fecha DESC";
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idUsuario);
+            ResultSet rs = stmt.executeQuery();
 
-            stmt.setDate(1, Date.valueOf(fecha));
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    reportes.add(mapearReporte(rs));
-                }
+            while (rs.next()) {
+                reportes.add(mapearReporte(rs));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar por fecha: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
         return reportes;
     }
 
-    public int obtenerTotal() {
-        String sql = "SELECT COUNT(*) FROM reportemedico";
+    // Obtener reportes por rango de fechas
+    public List<ReporteMedico> obtenerPorRangoFechas(LocalDate fechaInicio, LocalDate fechaFin) {
+        List<ReporteMedico> reportes = new ArrayList<>();
+        String sql = "SELECT * FROM ReporteMedico WHERE fecha BETWEEN ? AND ? ORDER BY fecha DESC";
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setDate(1, Date.valueOf(fechaInicio));
+            stmt.setDate(2, Date.valueOf(fechaFin));
+            ResultSet rs = stmt.executeQuery();
 
-            if (rs.next()) {
-                return rs.getInt(1);
+            while (rs.next()) {
+                reportes.add(mapearReporte(rs));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al obtener total: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
-        return 0;
+        return reportes;
     }
 
+    // Obtener reportes por fecha específica
+    public List<ReporteMedico> obtenerPorFecha(LocalDate fecha) {
+        List<ReporteMedico> reportes = new ArrayList<>();
+        String sql = "SELECT * FROM ReporteMedico WHERE fecha = ? ORDER BY id_reporte DESC";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setDate(1, Date.valueOf(fecha));
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                reportes.add(mapearReporte(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return reportes;
+    }
+
+    // Actualizar reporte médico
+    public boolean actualizar(ReporteMedico reporte) {
+        String sql = "UPDATE ReporteMedico SET id_animal = ?, id_usuario = ?, temperatura = ?, condicion_corporal = ?, frecuencia_respiratoria = ?, fecha = ?, diagnostico_presuntivo = ?, diagnostico_definitivo = ? WHERE id_reporte = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, reporte.getIdAnimales().getIdAnimal());
+            stmt.setInt(2, reporte.getIdUsuario().getIdUsuario());
+            stmt.setDouble(3, reporte.getTemperatura());
+            stmt.setString(4, reporte.getCondicionCorporal());
+            stmt.setInt(5, reporte.getFrecuenciaRespiratoria());
+            stmt.setDate(6, Date.valueOf(reporte.getFecha()));
+            stmt.setString(7, reporte.getDiagnosticoPresuntivo());
+            stmt.setString(8, reporte.getDiagnosticoDefinitivo());
+            stmt.setInt(9, reporte.getIdReporte());
+
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Eliminar reporte médico
+    public boolean eliminar(int idReporte) {
+        String sql = "DELETE FROM ReporteMedico WHERE id_reporte = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idReporte);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Método auxiliar para mapear ResultSet a objeto ReporteMedico
     private ReporteMedico mapearReporte(ResultSet rs) throws SQLException {
-        ReporteMedico reporte = new ReporteMedico();
-        reporte.idReporte = rs.getInt("idReporte");
+        Animales animal = animalRepository.obtenerPorId(rs.getInt("id_animal"));
+        Usuario usuario = usuarioRepository.obtenerPorId(rs.getInt("id_usuario"));
 
-        int idAnimal = rs.getInt("idAnimal");
-        if (!rs.wasNull()) {
-            Animales animal = new Animales();
-            animal.idAnimal = idAnimal;
-            reporte.idAnimales = animal;
-        }
-
-        int idEnfermedad = rs.getInt("idEnfermedad");
-        if (!rs.wasNull()) {
-            Enfermedad enfermedad = new Enfermedad();
-            enfermedad.idEnfermedad = idEnfermedad;
-            reporte.idEnfermedad = enfermedad;
-        }
-
-        int idTratamiento = rs.getInt("idTratamiento");
-        if (!rs.wasNull()) {
-            Tratamiento tratamiento = new Tratamiento();
-            tratamiento.idTratamiento = idTratamiento;
-            reporte.idTratamiento = tratamiento;
-        }
-
-        Date fecha = rs.getDate("fechaReporte");
-        reporte.fechaReporte = fecha != null ? fecha.toLocalDate() : null;
-
-        reporte.descripcionReporte = rs.getString("descripcionReporte");
-
-        return reporte;
+        return new ReporteMedico(
+                rs.getInt("id_reporte"),
+                animal,
+                usuario,
+                rs.getDouble("temperatura"),
+                rs.getString("condicion_corporal"),
+                rs.getInt("frecuencia_respiratoria"),
+                rs.getDate("fecha").toLocalDate(),
+                rs.getString("diagnostico_presuntivo"),
+                rs.getString("diagnostico_definitivo")
+        );
     }
 }

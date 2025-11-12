@@ -34,12 +34,12 @@ public class TratamientoService {
     }
 
     public Optional<Tratamiento> buscarPorId(int id) {
-        Tratamiento tratamiento = tratamientoRepository.buscarPorId(id);
+        Tratamiento tratamiento = tratamientoRepository.obtenerPorId(id);
         return Optional.ofNullable(tratamiento);
     }
 
     public Tratamiento actualizarTratamiento(Tratamiento tratamientoActualizado) {
-        if (tratamientoRepository.buscarPorId(tratamientoActualizado.getIdTratamiento()) == null) {
+        if (tratamientoRepository.obtenerPorId(tratamientoActualizado.getIdTratamiento()) == null) {
             return null;
         }
 

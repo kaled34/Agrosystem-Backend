@@ -1,140 +1,217 @@
 package Repository;
 
-import Config.ConfigDB;
 import Model.Peso;
-
+import Model.Animales;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PesoRepository {
+    private Connection connection;
+    private AnimalesRepository animalRepository;
 
-    public Peso crear(Peso peso) {
-        String sql = "INSERT INTO peso (pesoNacimiento, pesoActual) VALUES (?, ?)";
+    public PesoRepository(Connection connection) {
+        this.connection = connection;
+        this.animalRepository = new AnimalesRepository(connection);
+    }
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+    // Crear un nuevo registro de peso
+    public boolean crear(Peso peso) {
+        String sql = "INSERT INTO PesoAnimal (id_animal, id_usuarioRegistro, fecha_medicion, peso_kg, condicion_corporal, observaciones) VALUES (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setInt(1, peso.getIdAnimal().getIdAnimal());
+            stmt.setInt(2, 1); // id_usuarioRegistro - deberías pasarlo como parámetro
+            stmt.setDate(3, Date.valueOf(peso.getFechaMedicion()));
+            stmt.setDouble(4, peso.getPesoActual());
+            stmt.setString(5, peso.getCondicionCorporal());
+            stmt.setString(6, peso.getObservaciones());
 
-            stmt.setLong(1, peso.getPesoNacimiento());
-            stmt.setDouble(2, peso.getPesoActual());
+            int affectedRows = stmt.executeUpdate();
 
-            stmt.executeUpdate();
-
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    peso.idPeso = rs.getInt(1);
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        peso.idPeso = generatedKeys.getInt(1);
+                    }
                 }
+                return true;
             }
-
-            return peso;
-
+            return false;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al crear peso: " + e.getMessage(), e);
+            e.printStackTrace();
+            return false;
         }
     }
 
-    public Peso buscarPorId(int idPeso) {
-        String sql = "SELECT * FROM peso WHERE idPeso = ?";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+    // Obtener peso por ID
+    public Peso obtenerPorId(int idPeso) {
+        String sql = "SELECT * FROM PesoAnimal WHERE id_peso = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idPeso);
+            ResultSet rs = stmt.executeQuery();
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapearPeso(rs);
-                }
+            if (rs.next()) {
+                return mapearPeso(rs);
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar peso: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
         return null;
     }
 
+    // Obtener todos los registros de peso
     public List<Peso> obtenerTodos() {
         List<Peso> pesos = new ArrayList<>();
-        String sql = "SELECT * FROM peso";
+        String sql = "SELECT * FROM PesoAnimal ORDER BY fecha_medicion DESC";
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             Statement stmt = conn.createStatement();
+        try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 pesos.add(mapearPeso(rs));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al obtener pesos: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
         return pesos;
     }
 
-    public Peso actualizar(Peso peso) {
-        String sql = "UPDATE Peso SET pesoNacimiento = ?, pesoActual = ? WHERE idPeso = ?";
+    // Obtener pesos por animal
+    public List<Peso> obtenerPorAnimal(int idAnimal) {
+        List<Peso> pesos = new ArrayList<>();
+        String sql = "SELECT * FROM PesoAnimal WHERE id_animal = ? ORDER BY fecha_medicion DESC";
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idAnimal);
+            ResultSet rs = stmt.executeQuery();
 
-            stmt.setLong(1, peso.getPesoNacimiento());
-            stmt.setDouble(2, peso.getPesoActual());
-            stmt.setInt(3, peso.getIdPeso());
-
-            int rowsAffected = stmt.executeUpdate();
-
-            if (rowsAffected > 0) {
-                return peso;
+            while (rs.next()) {
+                pesos.add(mapearPeso(rs));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar peso: " + e.getMessage(), e);
+            e.printStackTrace();
         }
+        return pesos;
+    }
 
+    // Obtener el peso más reciente de un animal
+    public Peso obtenerUltimoPesoPorAnimal(int idAnimal) {
+        String sql = "SELECT * FROM PesoAnimal WHERE id_animal = ? ORDER BY fecha_medicion DESC LIMIT 1";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idAnimal);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return mapearPeso(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
-    public boolean eliminar(int idPeso) {
-        String sql = "DELETE FROM peso WHERE idPeso = ?";
+    // Obtener pesos por rango de fechas
+    public List<Peso> obtenerPorRangoFechas(LocalDate fechaInicio, LocalDate fechaFin) {
+        List<Peso> pesos = new ArrayList<>();
+        String sql = "SELECT * FROM PesoAnimal WHERE fecha_medicion BETWEEN ? AND ? ORDER BY fecha_medicion DESC";
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setDate(1, Date.valueOf(fechaInicio));
+            stmt.setDate(2, Date.valueOf(fechaFin));
+            ResultSet rs = stmt.executeQuery();
 
-            stmt.setInt(1, idPeso);
-            int rowsAffected = stmt.executeUpdate();
-
-            return rowsAffected > 0;
-
+            while (rs.next()) {
+                pesos.add(mapearPeso(rs));
+            }
         } catch (SQLException e) {
-            throw new RuntimeException("Error al eliminar peso: " + e.getMessage(), e);
+            e.printStackTrace();
         }
+        return pesos;
     }
 
-    public int obtenerTotal() {
-        String sql = "SELECT COUNT(*) FROM peso";
+    // Obtener pesos de un animal en un rango de fechas
+    public List<Peso> obtenerPorAnimalYRangoFechas(int idAnimal, LocalDate fechaInicio, LocalDate fechaFin) {
+        List<Peso> pesos = new ArrayList<>();
+        String sql = "SELECT * FROM PesoAnimal WHERE id_animal = ? AND fecha_medicion BETWEEN ? AND ? ORDER BY fecha_medicion DESC";
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idAnimal);
+            stmt.setDate(2, Date.valueOf(fechaInicio));
+            stmt.setDate(3, Date.valueOf(fechaFin));
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                pesos.add(mapearPeso(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return pesos;
+    }
+
+    // Calcular ganancia de peso promedio
+    public double calcularGananciaPromedio(int idAnimal) {
+        String sql = "SELECT AVG(peso_kg) as promedio FROM PesoAnimal WHERE id_animal = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idAnimal);
+            ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return rs.getInt(1);
+                return rs.getDouble("promedio");
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al obtener total: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
-        return 0;
+        return 0.0;
     }
 
+    // Actualizar registro de peso
+    public boolean actualizar(Peso peso) {
+        String sql = "UPDATE PesoAnimal SET id_animal = ?, fecha_medicion = ?, peso_kg = ?, condicion_corporal = ?, observaciones = ? WHERE id_peso = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, peso.getIdAnimal().getIdAnimal());
+            stmt.setDate(2, Date.valueOf(peso.getFechaMedicion()));
+            stmt.setDouble(3, peso.getPesoActual());
+            stmt.setString(4, peso.getCondicionCorporal());
+            stmt.setString(5, peso.getObservaciones());
+            stmt.setInt(6, peso.getIdPeso());
+
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Eliminar registro de peso
+    public boolean eliminar(int idPeso) {
+        String sql = "DELETE FROM PesoAnimal WHERE id_peso = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idPeso);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Método auxiliar para mapear ResultSet a objeto Peso
     private Peso mapearPeso(ResultSet rs) throws SQLException {
-        Peso peso = new Peso();
-        peso.idPeso = rs.getInt("idPeso");
-        peso.pesoNacimiento = rs.getLong("pesoNacimiento");
-        peso.pesoActual = rs.getDouble("pesoActual");
-        return peso;
+        Animales animal = animalRepository.obtenerPorId(rs.getInt("id_animal"));
+
+        // Nota: El modelo Peso tiene pesoNacimiento pero la BD no lo tiene en PesoAnimal
+        // Se asume que pesoNacimiento viene de Animal.peso_inicial
+        double pesoNacimiento = animal != null ? animal.getPesoInicial() : 0.0;
+
+        return new Peso(
+                rs.getInt("id_peso"),
+                animal,
+                pesoNacimiento,
+                rs.getDouble("peso_kg"),
+                rs.getDate("fecha_medicion").toLocalDate(),
+                rs.getString("condicion_corporal"),
+                rs.getString("observaciones")
+        );
     }
 }

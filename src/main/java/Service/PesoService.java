@@ -1,4 +1,4 @@
-package Service;
+ package Service;
 
 import Model.Peso;
 import Repository.PesoRepository;
@@ -26,12 +26,12 @@ public class PesoService {
     }
 
     public Optional<Peso> buscarPorId(int id) {
-        Peso peso = pesoRepository.buscarPorId(id);
+        Peso peso = pesoRepository.obtenerPorId(id);
         return Optional.ofNullable(peso);
     }
 
     public Peso actualizarPeso(Peso pesoActualizado) {
-        if (pesoRepository.buscarPorId(pesoActualizado.getIdPeso()) == null) {
+        if (pesoRepository.obtenerPorId(pesoActualizado.getIdPeso()) == null) {
             return null;
         }
 

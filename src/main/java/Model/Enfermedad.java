@@ -3,12 +3,14 @@ package Model;
 public class Enfermedad {
 
     public int idEnfermedad;
-    public int diasDuracion;
     public String nombreEnfermedad;
-    public String descripcionEnfermedad;
-    public String sintomas;
-    public String cuidadosPreventivos;
-    public String duracion;
+    public  String tipoEnfermedad;
+    public  String sintomas;
+    public int duracionEstimada;
+    public String tratamientosRecomendados;
+    public  Medicamento idMedicamento;
+    public String nivelRiesgo;
+    public  String modoTransmision;
     public Analisis idAnalisis;
 
     public Enfermedad (){
@@ -16,16 +18,18 @@ public class Enfermedad {
     }
 
 
-    public Enfermedad(int idEnfermedad, String nombreEnfermedad, String descripcionEnfermedad,
-                      String sintomas, String cuidadosPreventivos, String duracion, int diasDuracion, Analisis idAnalisis) {
+    public Enfermedad(int idEnfermedad, String nombreEnfermedad, String tipoEnfermedad,
+                      String sintomas, int duracionEstimada, String tratamientosRecomendados, Medicamento idMedicamento, String descripcionEnfermedad,String nivelRiesgo, String modoTransmision ,Analisis idAnalisis) {
 
         this.idEnfermedad = idEnfermedad;
         this.nombreEnfermedad = nombreEnfermedad;
-        this.descripcionEnfermedad = descripcionEnfermedad;
+        this.tipoEnfermedad = tipoEnfermedad;
         this.sintomas = sintomas;
-        this.cuidadosPreventivos = cuidadosPreventivos;
-        this.duracion = duracion;
-        this.diasDuracion = diasDuracion;
+        this.duracionEstimada = duracionEstimada;
+        this.tratamientosRecomendados = tratamientosRecomendados;
+        this.idMedicamento = idMedicamento;
+        this.nivelRiesgo = nivelRiesgo;
+        this.modoTransmision = modoTransmision;
         this.idAnalisis = idAnalisis;
     }
 
@@ -39,24 +43,32 @@ public class Enfermedad {
         return nombreEnfermedad;
     }
 
-    public String getDescripcionEnfermedad() {
-        return descripcionEnfermedad;
+    public String getTipoEnfermedad() {
+        return tipoEnfermedad;
     }
 
     public String getSintomas() {
         return sintomas;
     }
 
-    public String getCuidadosPreventivos() {
-        return cuidadosPreventivos;
+    public int getDuracionEstimada() {
+        return duracionEstimada;
     }
 
-    public String getDuracion() {
-        return duracion;
+    public String getTratamientosRecomendados() {
+        return tratamientosRecomendados;
     }
 
-    public int getDiasDuracion() {
-        return diasDuracion;
+    public Medicamento getIdMedicamento() {
+        return idMedicamento;
+    }
+
+    public String getNivelRiesgo() {
+        return nivelRiesgo;
+    }
+
+    public String getModoTransmision() {
+        return modoTransmision;
     }
 
     public Analisis getIdAnalisis() {
@@ -69,25 +81,34 @@ public class Enfermedad {
         this.nombreEnfermedad = nombreEnfermedad;
     }
 
-    public void setDescripcionEnfermedad(String descripcionEnfermedad) {
-        this.descripcionEnfermedad = descripcionEnfermedad;
+    public void setTipoEnfermedad(String tipoEnfermedad) {
+        this.tipoEnfermedad = tipoEnfermedad;
+    }
+
+    public void setDuracionEstimada(int duracionEstimada) {
+        this.duracionEstimada = duracionEstimada;
+    }
+
+    public void setTratamientosRecomendados(String tratamientosRecomendados) {
+        this.tratamientosRecomendados = tratamientosRecomendados;
+    }
+
+    public void setIdMedicamento(Medicamento idMedicamento) {
+        this.idMedicamento = idMedicamento;
+    }
+
+    public void setNivelRiesgo(String nivelRiesgo) {
+        this.nivelRiesgo = nivelRiesgo;
+    }
+
+    public void setModoTransmision(String modoTransmision) {
+        this.modoTransmision = modoTransmision;
     }
 
     public void setSintomas(String sintomas) {
         this.sintomas = sintomas;
     }
 
-    public void setCuidadosPreventivos(String cuidadosPreventivos) {
-        this.cuidadosPreventivos = cuidadosPreventivos;
-    }
-
-    public void setDuracion(String duracion) {
-        this.duracion = duracion;
-    }
-
-    public void setDiasDuracion(int diasDuracion) {
-        this.diasDuracion = diasDuracion;
-    }
 
     public void setIdAnalisis(Analisis idAnalisis) {
         this.idAnalisis = idAnalisis;

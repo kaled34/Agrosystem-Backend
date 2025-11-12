@@ -1,6 +1,7 @@
 package org.Agrova;
 
 import Config.ConfigDB;
+import Model.Animales;
 import io.javalin.Javalin;
 import java.util.Map;
 
@@ -12,7 +13,6 @@ import Routes.*;
 public class Main {
     public static void main(String[] args) {
 
-        // Inicializar conexión a la base de datos
         ConfigDB.getDataSource();
 
         // Repositorios
@@ -96,6 +96,8 @@ public class Main {
         new PesoRoutes(pesoController).register(app);
         new RolRoutes(rolController).register(app);
 
+
+
         System.out.println("✅ Todas las rutas registradas exitosamente");
         System.out.println("================================");
         System.out.println("Endpoints disponibles:");
@@ -114,3 +116,4 @@ public class Main {
         }));
     }
 }
+

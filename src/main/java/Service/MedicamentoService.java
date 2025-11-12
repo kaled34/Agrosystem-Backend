@@ -22,13 +22,13 @@ public class MedicamentoService {
         }
 
 
-        if (medicamento.getPrincipioActivo() == null || medicamento.getPrincipioActivo().trim().isEmpty()) {
-            throw new IllegalArgumentException("El principio activo es obligatorio.");
+        if (medicamento.frecuenciaAplicacion == null || medicamento.frecuenciaAplicacion.trim().isEmpty()) {
+            throw new IllegalArgumentException("La frecuencia de aplicación es obligatorio.");
         }
 
 
-        if (medicamento.getCantidadMedicamento() <= 0) {
-            throw new IllegalArgumentException("La cantidad del medicamento debe ser mayor a cero.");
+        if (medicamento.dosis <= 0) {
+            throw new IllegalArgumentException("La dosis debe ser mayor a cero.");
         }
 
 
@@ -42,15 +42,15 @@ public class MedicamentoService {
 
 
     public Optional<Medicamento> buscarPorId(int id) {
-        Medicamento medicamento = medicamentoRepository.buscarPorId(id);
+        Medicamento medicamento = medicamentoRepository.obtenerPorId(id);
         return Optional.ofNullable(medicamento);
     }
 
 
     public Medicamento actualizarMedicamento(Medicamento medicamentoActualizado) {
 
-        if (medicamentoRepository.buscarPorId(medicamentoActualizado.getIdMedicamento()) == null) {
-            return null; // El medicamento no existe
+        if (medicamentoRepository.obtenerPorId(medicamentoActualizado.getIdMedicamento()) == null) {
+            return null;
         }
 
 

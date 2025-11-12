@@ -15,10 +15,11 @@ public class AnimalesService {
 
     public Animales crearAnimal(Animales animal) {
         if (animal.getNombreAnimal() == null) {
-            throw new IllegalArgumentException("El peso actual debe ser positivo.");
+            throw new IllegalArgumentException("El nombre del animal no puede ser nulo.");
         }
 
-        return animalesRepository.crear(animal);
+        animalesRepository.crear(animal);
+        return animal;
     }
 
     public List<Animales> obtenerTodos() {
@@ -26,18 +27,19 @@ public class AnimalesService {
     }
 
     public Optional<Animales> buscarPorId(int id) {
-        Animales animal = animalesRepository.buscarPorId(id);
+        Animales animal = animalesRepository.obtenerPorId(id);
         return Optional.ofNullable(animal);
     }
 
     public Animales actualizarAnimal(Animales animalActualizado) {
-        if (animalesRepository.buscarPorId(animalActualizado.getIdAnimal()) == null) {
+        if (animalesRepository.obtenerPorId(animalActualizado.getIdAnimal()) == null) {
             return null;
         }
-        return animalesRepository.actualizar(animalActualizado);
+        animalesRepository.actualizar(animalActualizado);
+        return animalActualizado;
     }
+
     public boolean eliminarAnimal(int id) {
         return animalesRepository.eliminar(id);
     }
 }
-

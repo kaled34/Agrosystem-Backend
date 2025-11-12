@@ -1,226 +1,249 @@
 package Repository;
 
-import Config.ConfigDB;
 import Model.Tratamiento;
 import Model.Animales;
+import Model.ReporteMedico;
+import Model.Usuario;
 import Model.Medicamento;
-
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TratamientoRepository {
+    private Connection connection;
+    private AnimalesRepository animalRepository;
+    private ReporteMedicoRepository reporteMedicoRepository;
+    private UsuarioRepository usuarioRepository;
+    private MedicamentoRepository medicamentoRepository;
 
-    public Tratamiento crear(Tratamiento tratamiento) {
-        String sql = "INSERT INTO tratamiento (idAnimal, idMedicamento, fechaInicio, fechaFinal, " +
-                "nombreTratamiento, descripcionReporte, evolucion, nombreVeterinario) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    public TratamientoRepository(Connection connection) {
+        this.connection = connection;
+        this.animalRepository = new AnimalesRepository(connection);
+        this.reporteMedicoRepository = new ReporteMedicoRepository(connection);
+        this.usuarioRepository = new UsuarioRepository(connection);
+        this.medicamentoRepository = new MedicamentoRepository(connection);
+    }
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+    // Crear un nuevo tratamiento
+    public boolean crear(Tratamiento tratamiento) {
+        String sql = "INSERT INTO Tratamientos (id_animal, id_reporte, id_usuario, nombre_tratamiento, fecha_inicio, fecha_fin, id_medicamento, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setInt(1, tratamiento.getIdAnimales().getIdAnimal());
+            stmt.setInt(2, tratamiento.getIdReporte().getIdReporte());
+            stmt.setInt(3, tratamiento.getIdUsuario().getIdUsuario());
+            stmt.setString(4, tratamiento.getNombreTratamiento());
+            stmt.setDate(5, Date.valueOf(tratamiento.getFechaInicio()));
+            stmt.setDate(6, Date.valueOf(tratamiento.getFechaFinal()));
+            stmt.setInt(7, tratamiento.getIdMedicamento().getIdMedicamento());
+            stmt.setString(8, tratamiento.getObservaciones());
 
-            stmt.setObject(1, tratamiento.getIdAnimales() != null ? tratamiento.getIdAnimales().getIdAnimal() : null);
-            stmt.setObject(2, tratamiento.idMedicamento != null ? tratamiento.idMedicamento.getIdMedicamento() : null);
-            stmt.setDate(3, tratamiento.getFechaInicio() != null ? Date.valueOf(tratamiento.getFechaInicio()) : null);
-            stmt.setDate(4, tratamiento.getFechaFinal() != null ? Date.valueOf(tratamiento.getFechaFinal()) : null);
-            stmt.setString(5, tratamiento.getNombreTratamiento());
-            stmt.setString(6, tratamiento.getDescripcionReporte());
-            stmt.setString(7, tratamiento.getEvolucion());
-            stmt.setString(8, tratamiento.getNombreVeterinario());
+            int affectedRows = stmt.executeUpdate();
 
-            stmt.executeUpdate();
-
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    tratamiento.idTratamiento = rs.getInt(1);
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        tratamiento.idTratamiento = generatedKeys.getInt(1);
+                    }
                 }
+                return true;
             }
-
-            return tratamiento;
-
+            return false;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al crear tratamiento: " + e.getMessage(), e);
+            e.printStackTrace();
+            return false;
         }
     }
 
-    public Tratamiento buscarPorId(int idTratamiento) {
-        String sql = "SELECT * FROM tratamiento WHERE idTratamiento = ?";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+    // Obtener tratamiento por ID
+    public Tratamiento obtenerPorId(int idTratamiento) {
+        String sql = "SELECT * FROM Tratamientos WHERE id_tratamiento = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idTratamiento);
+            ResultSet rs = stmt.executeQuery();
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapearTratamiento(rs);
-                }
+            if (rs.next()) {
+                return mapearTratamiento(rs);
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar tratamiento: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
         return null;
     }
 
+    // Obtener todos los tratamientos
     public List<Tratamiento> obtenerTodos() {
         List<Tratamiento> tratamientos = new ArrayList<>();
-        String sql = "SELECT * FROM tratamiento";
+        String sql = "SELECT * FROM Tratamientos ORDER BY fecha_inicio DESC";
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             Statement stmt = conn.createStatement();
+        try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 tratamientos.add(mapearTratamiento(rs));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al obtener tratamientos: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
         return tratamientos;
     }
 
-    public Tratamiento actualizar(Tratamiento tratamiento) {
-        String sql = "UPDATE tratamiento SET idAnimal = ?, idMedicamento = ?, fechaInicio = ?, " +
-                "fechaFinal = ?, nombreTratamiento = ?, descripcionReporte = ?, evolucion = ?, " +
-                "nombreVeterinario = ? WHERE idTratamiento = ?";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setObject(1, tratamiento.getIdAnimales() != null ? tratamiento.getIdAnimales().getIdAnimal() : null);
-            stmt.setObject(2, tratamiento.idMedicamento != null ? tratamiento.idMedicamento.getIdMedicamento() : null);
-            stmt.setDate(3, tratamiento.getFechaInicio() != null ? Date.valueOf(tratamiento.getFechaInicio()) : null);
-            stmt.setDate(4, tratamiento.getFechaFinal() != null ? Date.valueOf(tratamiento.getFechaFinal()) : null);
-            stmt.setString(5, tratamiento.getNombreTratamiento());
-            stmt.setString(6, tratamiento.getDescripcionReporte());
-            stmt.setString(7, tratamiento.getEvolucion());
-            stmt.setString(8, tratamiento.getNombreVeterinario());
-            stmt.setInt(9, tratamiento.getIdTratamiento());
-
-            int rowsAffected = stmt.executeUpdate();
-
-            if (rowsAffected > 0) {
-                return tratamiento;
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar tratamiento: " + e.getMessage(), e);
-        }
-
-        return null;
-    }
-
-    public boolean eliminar(int idTratamiento) {
-        String sql = "DELETE FROM tratamiento WHERE idTratamiento = ?";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, idTratamiento);
-            int rowsAffected = stmt.executeUpdate();
-
-            return rowsAffected > 0;
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al eliminar tratamiento: " + e.getMessage(), e);
-        }
-    }
-
-    public List<Tratamiento> buscarPorAnimal(Animales animal) {
+    // Obtener tratamientos por animal
+    public List<Tratamiento> obtenerPorAnimal(int idAnimal) {
         List<Tratamiento> tratamientos = new ArrayList<>();
-        String sql = "SELECT * FROM tratamiento WHERE idAnimal = ?";
+        String sql = "SELECT * FROM Tratamientos WHERE id_animal = ? ORDER BY fecha_inicio DESC";
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idAnimal);
+            ResultSet rs = stmt.executeQuery();
 
-            stmt.setInt(1, animal.getIdAnimal());
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    tratamientos.add(mapearTratamiento(rs));
-                }
+            while (rs.next()) {
+                tratamientos.add(mapearTratamiento(rs));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar por animal: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
         return tratamientos;
     }
 
-    public List<Tratamiento> buscarPorVeterinario(String nombreVeterinario) {
+    // Obtener tratamientos activos (no finalizados)
+    public List<Tratamiento> obtenerActivos() {
         List<Tratamiento> tratamientos = new ArrayList<>();
-        String sql = "SELECT * FROM tratamiento WHERE nombreVeterinario = ?";
+        String sql = "SELECT * FROM Tratamientos WHERE fecha_fin >= CURDATE() ORDER BY fecha_inicio DESC";
 
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, nombreVeterinario);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    tratamientos.add(mapearTratamiento(rs));
-                }
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar por veterinario: " + e.getMessage(), e);
-        }
-
-        return tratamientos;
-    }
-
-    public int obtenerTotal() {
-        String sql = "SELECT COUNT(*) FROM tratamiento";
-
-        try (Connection conn = ConfigDB.getDataSource().getConnection();
-             Statement stmt = conn.createStatement();
+        try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
-            if (rs.next()) {
-                return rs.getInt(1);
+            while (rs.next()) {
+                tratamientos.add(mapearTratamiento(rs));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error al obtener total: " + e.getMessage(), e);
+            e.printStackTrace();
         }
-
-        return 0;
+        return tratamientos;
     }
 
+    // Obtener tratamientos activos por animal
+    public List<Tratamiento> obtenerActivosPorAnimal(int idAnimal) {
+        List<Tratamiento> tratamientos = new ArrayList<>();
+        String sql = "SELECT * FROM Tratamientos WHERE id_animal = ? AND fecha_fin >= CURDATE() ORDER BY fecha_inicio DESC";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idAnimal);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                tratamientos.add(mapearTratamiento(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return tratamientos;
+    }
+
+    // Obtener tratamientos por reporte médico
+    public List<Tratamiento> obtenerPorReporte(int idReporte) {
+        List<Tratamiento> tratamientos = new ArrayList<>();
+        String sql = "SELECT * FROM Tratamientos WHERE id_reporte = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idReporte);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                tratamientos.add(mapearTratamiento(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return tratamientos;
+    }
+
+    // Obtener tratamientos por usuario
+    public List<Tratamiento> obtenerPorUsuario(int idUsuario) {
+        List<Tratamiento> tratamientos = new ArrayList<>();
+        String sql = "SELECT * FROM Tratamientos WHERE id_usuario = ? ORDER BY fecha_inicio DESC";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idUsuario);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                tratamientos.add(mapearTratamiento(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return tratamientos;
+    }
+
+    // Obtener tratamientos por medicamento
+    public List<Tratamiento> obtenerPorMedicamento(int idMedicamento) {
+        List<Tratamiento> tratamientos = new ArrayList<>();
+        String sql = "SELECT * FROM Tratamientos WHERE id_medicamento = ? ORDER BY fecha_inicio DESC";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idMedicamento);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                tratamientos.add(mapearTratamiento(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return tratamientos;
+    }
+
+    // Actualizar tratamiento
+    public boolean actualizar(Tratamiento tratamiento) {
+        String sql = "UPDATE Tratamientos SET id_animal = ?, id_reporte = ?, id_usuario = ?, nombre_tratamiento = ?, fecha_fin = ?, id_medicamento = ?, observaciones = ? WHERE id_tratamiento = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, tratamiento.getIdAnimales().getIdAnimal());
+            stmt.setInt(2, tratamiento.getIdReporte().getIdReporte());
+            stmt.setInt(3, tratamiento.getIdUsuario().getIdUsuario());
+            stmt.setString(4, tratamiento.getNombreTratamiento());
+            stmt.setDate(5, Date.valueOf(tratamiento.getFechaFinal()));
+            stmt.setInt(6, tratamiento.getIdMedicamento().getIdMedicamento());
+            stmt.setString(7, tratamiento.getObservaciones());
+            stmt.setInt(8, tratamiento.getIdTratamiento());
+
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Eliminar tratamiento
+    public boolean eliminar(int idTratamiento) {
+        String sql = "DELETE FROM Tratamientos WHERE id_tratamiento = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idTratamiento);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Método auxiliar para mapear ResultSet a objeto Tratamiento
     private Tratamiento mapearTratamiento(ResultSet rs) throws SQLException {
-        Tratamiento tratamiento = new Tratamiento();
-        tratamiento.idTratamiento = rs.getInt("idTratamiento");
+        Animales animal = animalRepository.obtenerPorId(rs.getInt("id_animal"));
+        ReporteMedico reporte = reporteMedicoRepository.obtenerPorId(rs.getInt("id_reporte"));
+        Usuario usuario = usuarioRepository.obtenerPorId(rs.getInt("id_usuario"));
+        Medicamento medicamento = medicamentoRepository.obtenerPorId(rs.getInt("id_medicamento"));
 
-        int idAnimal = rs.getInt("idAnimal");
-        if (!rs.wasNull()) {
-            Animales animal = new Animales();
-            animal.idAnimal = idAnimal;
-            tratamiento.idAnimal = animal;
-        }
-
-        int idMedicamento = rs.getInt("idMedicamento");
-        if (!rs.wasNull()) {
-            Medicamento medicamento = new Medicamento();
-            medicamento.idMedicamento = idMedicamento;
-            tratamiento.idMedicamento = medicamento;
-        }
-
-        Date fechaIni = rs.getDate("fechaInicio");
-        tratamiento.fechaInicio = fechaIni != null ? fechaIni.toLocalDate() : null;
-
-        Date fechaFin = rs.getDate("fechaFinal");
-        tratamiento.fechaFinal = fechaFin != null ? fechaFin.toLocalDate() : null;
-
-        tratamiento.nombreTratamiento = rs.getString("nombreTratamiento");
-        tratamiento.descripcionReporte = rs.getString("descripcionReporte");
-        tratamiento.evolucion = rs.getString("evolucion");
-        tratamiento.nombreVeterinario = rs.getString("nombreVeterinario");
-
-        return tratamiento;
+        return new Tratamiento(
+                rs.getInt("id_tratamiento"),
+                animal,
+                reporte,
+                usuario,
+                rs.getString("nombre_tratamiento"),
+                rs.getDate("fecha_inicio").toLocalDate(),
+                rs.getDate("fecha_fin").toLocalDate(),
+                medicamento,
+                rs.getString("observaciones")
+        );
     }
 }

@@ -22,16 +22,16 @@ public class TarjetaSaludService {
     }
 
     public List<TarjetaSalud> obtenerTodas() {
-        return tarjetaSaludRepository.obtenerTodos();
+        return tarjetaSaludRepository.obtenerTodas();
     }
 
     public Optional<TarjetaSalud> buscarPorId(int id) {
-        TarjetaSalud tarjeta = tarjetaSaludRepository.buscarPorId(id);
+        TarjetaSalud tarjeta = tarjetaSaludRepository.obtenerPorId(id);
         return Optional.ofNullable(tarjeta);
     }
 
     public TarjetaSalud actualizarTarjeta(TarjetaSalud tarjetaActualizada) {
-        if (tarjetaSaludRepository.buscarPorId(tarjetaActualizada.getIdTarjeta()) == null) {
+        if (tarjetaSaludRepository.obtenerPorId(tarjetaActualizada.getIdTarjeta()) == null) {
             return null;
         }
 
@@ -43,7 +43,7 @@ public class TarjetaSaludService {
     }
 
     public Optional<TarjetaSalud> buscarPorAnimal(int idAnimal) {
-        TarjetaSalud tarjeta = tarjetaSaludRepository.buscarPorAnimal(idAnimal);
+        TarjetaSalud tarjeta = tarjetaSaludRepository.obtenerPorId(idAnimal);
         return Optional.ofNullable(tarjeta);
     }
 }

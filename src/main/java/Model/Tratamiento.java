@@ -4,44 +4,79 @@ import java.time.LocalDate;
 public class Tratamiento {
     public int idTratamiento;
     public Animales idAnimal;
-    public Medicamento idMedicamento;
+    public ReporteMedico idReporte;
+    public  Usuario idUsuario;
+    public String nombreTratamiento;
     public LocalDate fechaInicio;
     public LocalDate fechaFinal;
-    public String nombreTratamiento;
-    public String descripcionReporte;
-    public String evolucion;
-    public String nombreVeterinario;
+    public Medicamento idMedicamento;
+    public String observaciones;
 
     public  Tratamiento(){}
 
-    public Tratamiento(int idTratamiento, String nombreTratamiento, int idMedicamento,
-                       LocalDate fechaInicio, LocalDate fechaFinal, String descripcionReporte,
-                       String evolucion, String nombreVeterinario, Animales idAnimal) {
+    public Tratamiento(int idTratamiento, Animales idAnimal, ReporteMedico idReporte, Usuario idUsuario , String nombreTratamiento,
+                       LocalDate fechaInicio, LocalDate fechaFinal,Medicamento idMedicamento, String observaciones  ) {
         this.idTratamiento = idTratamiento;
+        this.idAnimal = idAnimal;
+        this.idReporte = idReporte;
+        this.idUsuario = idUsuario;
         this.nombreTratamiento = nombreTratamiento;
         this.fechaInicio = fechaInicio;
         this.fechaFinal = fechaFinal;
-        this.descripcionReporte = descripcionReporte;
-        this.evolucion = evolucion;
-        this.nombreVeterinario = nombreVeterinario;
-        this.idAnimal = idAnimal;
+        this.idMedicamento = idMedicamento;
+        this.observaciones = observaciones;
+
 
     }
 
 //getterasn
 
-    public int getIdTratamiento() { return idTratamiento; }
-    public String getNombreTratamiento() { return nombreTratamiento; }
-    public LocalDate getFechaInicio() { return fechaInicio; }
-    public LocalDate getFechaFinal() { return fechaFinal; }
-    public String getDescripcionReporte() { return descripcionReporte; }
-    public String getEvolucion() { return evolucion; }
-    public String getNombreVeterinario() { return nombreVeterinario; }
-
+    public int getIdTratamiento() {
+        return idTratamiento;
+    }
     public Animales getIdAnimales() {
         return idAnimal;
     }
+
+    public ReporteMedico getIdReporte() {
+        return idReporte;
+    }
+
+    public Usuario getIdUsuario() {
+        return idUsuario;
+    }
+
+    public String getNombreTratamiento() {
+        return nombreTratamiento;
+    }
+    public LocalDate getFechaInicio() {
+        return fechaInicio;
+    }
+    public LocalDate getFechaFinal() {
+        return fechaFinal;
+    }
+
+    public Medicamento getIdMedicamento() {
+        return idMedicamento;
+    }
+
+    public String getObservaciones() {
+        return observaciones;
+    }
     //setters
+
+    public void setIdAnimales(Animales idAnimales) {
+        this.idAnimal = idAnimales;
+    }
+
+    public void setIdReporte(ReporteMedico idReporte) {
+        this.idReporte = idReporte;
+    }
+
+    public void setIdUsuario(Usuario idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
 
     public void setNombreTratamiento(String nombreTratamiento) {
         this.nombreTratamiento = nombreTratamiento;
@@ -51,23 +86,13 @@ public class Tratamiento {
         this.fechaFinal = fechaFinal;
     }
 
-    public void setDescripcionReporte(String descripcionReporte) {
-        this.descripcionReporte = descripcionReporte;
-    }
 
-    public void setEvolucion(String evolucion) {
-        this.evolucion = evolucion;
-    }
-
-    public void setNombreVeterinario(String nombreVeterinario) {
-        this.nombreVeterinario = nombreVeterinario;
-    }
-
-    public void setIdAnimales(Animales idAnimales) {
-        this.idAnimal = idAnimales;
-    }
 
     public void setIdMedicamento(Medicamento idMedicamento) {
         this.idMedicamento = idMedicamento;
+    }
+
+    public void setObservaciones(String observaciones) {
+        this.observaciones = observaciones;
     }
 }

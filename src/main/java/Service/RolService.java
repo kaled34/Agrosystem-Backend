@@ -18,7 +18,7 @@ public class RolService {
             throw new IllegalArgumentException("El nombre del rol es obligatorio.");
         }
 
-        if (rolRepository.buscarPorNombre(rol.getNombre()) != null) {
+        if (rolRepository.obtenerPorNombre(rol.getNombre()) != null) {
             throw new IllegalArgumentException("Ya existe un rol con el nombre: " + rol.getNombre());
         }
 
@@ -30,12 +30,12 @@ public class RolService {
     }
 
     public Optional<Rol> buscarPorId(int id) {
-        Rol rol = rolRepository.buscarPorId(id);
+        Rol rol = rolRepository.obtenerPorId(id);
         return Optional.ofNullable(rol);
     }
 
     public Rol actualizarRol(Rol rolActualizado) {
-        if (rolRepository.buscarPorId(rolActualizado.getIdRol()) == null) {
+        if (rolRepository.obtenerPorId(rolActualizado.getIdRol()) == null) {
             return null;
         }
 
@@ -54,7 +54,7 @@ public class RolService {
         if (nombre == null || nombre.trim().isEmpty()) {
             throw new IllegalArgumentException("El parámetro de búsqueda 'nombre' no puede ser vacío.");
         }
-        Rol rol = rolRepository.buscarPorNombre(nombre);
+        Rol rol = rolRepository.obtenerPorNombre(nombre);
         return Optional.ofNullable(rol);
     }
 }

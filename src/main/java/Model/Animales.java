@@ -5,66 +5,110 @@ import java.time.LocalDate;
 public class Animales {
 
     public int idAnimal;
-    public int numArete;
-    public LocalDate fechaNacimiento;
-    public LocalDate fechaDestete;
-    public LocalDate fecha1erParto;
-    public LocalDate fecha1erMonta;
-    public int numCrias;
     public String nombreAnimal;
-    public String raza;
-    public String descripcionAnimal;
-    public String estadoActual;
+    public int numArete;
+    public String rebaño;
+    public LocalDate fechaNacimiento;
+    public double pesoInicial;
+    public String caracteristica;
+    public int edad;
+    public  String procedencia;
     public boolean sexo;
+    public int idPadre;
+    public int idMadre;
+    public int idPropiertario;
 
     public Animales() {
     }
 
-    public Animales(int idAnimal, int numArete, String nombreAnimal, long pesoNacimiento, long pesoActual,
-                    LocalDate fechaNacimiento, LocalDate fechaDestete, LocalDate fecha1erParto,
-                    LocalDate fecha1erMonta, String raza, boolean sexo, int numCrias,
-                    String descripcionAnimal, String estadoActual, HistorialParto idHistorialParto) {
+    public Animales(int idAnimal, String nombreAnimal,int numArete, String rebaño,LocalDate fechaNacimiento, double pesoInicial, String caracteristica, int edad, String procedencia, boolean sexo, int idPadre, int idMadre, int idPropiertario ) {
 
         this.idAnimal = idAnimal;
-        this.numArete = numArete;
         this.nombreAnimal = nombreAnimal;
+        this.numArete = numArete;
+        this.rebaño = rebaño;
         this.fechaNacimiento = fechaNacimiento;
-        this.fechaDestete = fechaDestete;
-        this.fecha1erParto = fecha1erParto;
-        this.fecha1erMonta = fecha1erMonta;
-        this.raza = raza;
+        this.pesoInicial = pesoInicial;
+        this.caracteristica = caracteristica;
+        this.edad = edad;
+        this.procedencia = procedencia;
         this.sexo = sexo;
-        this.numCrias = numCrias;
-        this.descripcionAnimal = descripcionAnimal;
-        this.estadoActual = estadoActual;
+        this.idMadre = idPadre;
+        this.idMadre = idMadre;
+        this.idPropiertario = idPropiertario;
     }
 
 
 
 
     //getters
-    public int getIdAnimal() { return idAnimal; }
-    public int getNumArete() { return numArete; }
-    public String getNombreAnimal() { return nombreAnimal; }
-    public LocalDate getFechaNacimiento() { return fechaNacimiento; }
-    public LocalDate getFechaDestete() { return fechaDestete; }
-    public LocalDate getFecha1erParto() { return fecha1erParto; }
-    public LocalDate getFecha1erMonta() { return fecha1erMonta; }
-    public String getRaza() { return raza; }
-    public boolean isSexo() { return sexo; } // Usamos 'is' para booleanos en Java
-    public int getNumCrias() { return numCrias; }
-    public String getDescripcionAnimal() { return descripcionAnimal; }
-    public String getEstadoActual() { return estadoActual; }
 
-//setters
+    public int getIdAnimal() {
+        return idAnimal;
+    }
+
+    public String getNombreAnimal() {
+        return nombreAnimal;
+    }
+
+    public int getNumArete() {
+        return numArete;
+    }
+
+    public String getRebaño() {
+        return rebaño;
+    }
+
+    public LocalDate getFechaNacimiento() {
+        return fechaNacimiento;
+    }
+
+    public double getPesoInicial() {
+        return pesoInicial;
+    }
+
+    public String getCaracteristica() {
+        return caracteristica;
+    }
+
+    public int getEdad() {
+        return edad;
+    }
+
+    public String getProcedencia() {
+        return procedencia;
+    }
+
+    public boolean isSexo() {
+        return sexo;
+    }
+
+    public int getIdPadre() {
+        return idPadre;
+    }
+
+    public int getIdMadre() {
+        return idMadre;
+    }
+
+    public int getIdPropiertario() {
+        return idPropiertario;
+    }
+    //setters
 
     public void setNombreAnimal(String nombreAnimal) { this.nombreAnimal = nombreAnimal; }
-    public void setFechaDestete(LocalDate fechaDestete) { this.fechaDestete = fechaDestete; }
-    public void setFecha1erParto(LocalDate fecha1erParto) { this.fecha1erParto = fecha1erParto; }
-    public void setFecha1erMonta(LocalDate fecha1erMonta) { this.fecha1erMonta = fecha1erMonta; }
-    public void setNumCrias(int numCrias) { this.numCrias = numCrias; }
-    public void setDescripcionAnimal(String descripcionAnimal) { this.descripcionAnimal = descripcionAnimal; }
-    public void setEstadoActual(String estadoActual) { this.estadoActual = estadoActual; }
+
+    public void setNumArete(int numArete) {
+        this.numArete = numArete;
+    }
+
+    public void setRebaño(String rebaño) {
+        this.rebaño = rebaño;
+    }
+
+    public void setCaracteristica(String caracteristica) {
+        this.caracteristica = caracteristica;
+    }
 
 }
 

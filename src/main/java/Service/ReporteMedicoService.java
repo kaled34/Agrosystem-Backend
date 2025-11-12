@@ -14,12 +14,12 @@ public class ReporteMedicoService {
     }
 
     public ReporteMedico crearReporte(ReporteMedico reporte) {
-        if (reporte.getFechaReporte() == null) {
+        if (reporte.fecha == null) {
             throw new IllegalArgumentException("La fecha del reporte es obligatoria.");
         }
 
-        if (reporte.getDescripcionReporte() == null || reporte.getDescripcionReporte().trim().isEmpty()) {
-            throw new IllegalArgumentException("La descripción del reporte es obligatoria.");
+        if (reporte.diagnosticoPresuntivo == null || reporte.diagnosticoPresuntivo.trim().isEmpty()) {
+            throw new IllegalArgumentException("El diagnostico es obligatorio.");
         }
 
         return reporteMedicoRepository.crear(reporte);
@@ -30,17 +30,17 @@ public class ReporteMedicoService {
     }
 
     public Optional<ReporteMedico> buscarPorId(int id) {
-        ReporteMedico reporte = reporteMedicoRepository.buscarPorId(id);
+        ReporteMedico reporte = reporteMedicoRepository.obtenerPorId(id);
         return Optional.ofNullable(reporte);
     }
 
     public ReporteMedico actualizarReporte(ReporteMedico reporteActualizado) {
-        if (reporteMedicoRepository.buscarPorId(reporteActualizado.getIdReporte()) == null) {
+        if (reporteMedicoRepository.obtenerPorId(reporteActualizado.getIdReporte()) == null) {
             return null;
         }
 
-        if (reporteActualizado.getDescripcionReporte() == null || reporteActualizado.getDescripcionReporte().trim().isEmpty()) {
-            throw new IllegalArgumentException("La descripción del reporte es obligatoria.");
+        if (reporteActualizado.diagnosticoPresuntivo == null || reporteActualizado.diagnosticoPresuntivo.trim().isEmpty()) {
+            throw new IllegalArgumentException("El diagnostico es obligatorio");
         }
 
         return reporteMedicoRepository.actualizar(reporteActualizado);
@@ -51,6 +51,6 @@ public class ReporteMedicoService {
     }
 
     public List<ReporteMedico> buscarPorAnimal(int idAnimal) {
-        return reporteMedicoRepository.buscarPorAnimal(idAnimal);
+        return reporteMedicoRepository.obtenerPorAnimal(idAnimal);
     }
 }

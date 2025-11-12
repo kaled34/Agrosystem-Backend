@@ -3,6 +3,7 @@ package Model;
 public class Rol {
     public int idRol;
     public String nombre;
+
     public Rol(){}
 
     public Rol(int idRol, String nombre) {

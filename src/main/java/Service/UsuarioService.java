@@ -15,7 +15,7 @@ public class UsuarioService {
     }
 
     public Usuario crearUsuario(Usuario usuario) {
-        if (usuario.getNombre() == null || usuario.getNombre().trim().isEmpty()) {
+        if (usuario.getNombreUsuario() == null || usuario.getNombreUsuario().trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre del usuario es obligatorio.");
         }
 
@@ -27,8 +27,8 @@ public class UsuarioService {
             throw new IllegalArgumentException("El rol del usuario es obligatorio.");
         }
 
-        if (usuarioRepository.buscarPorNombre(usuario.getNombre()) != null) {
-            throw new IllegalArgumentException("Ya existe un usuario con el nombre: " + usuario.getNombre());
+        if (usuarioRepository.obtenerPorNombreUsuario(usuario.getNombreUsuario()) != null) {
+            throw new IllegalArgumentException("Ya existe un usuario con el nombre: " + usuario.getNombreUsuario());
         }
 
         return usuarioRepository.crear(usuario);
@@ -39,7 +39,7 @@ public class UsuarioService {
     }
 
     public Optional<Usuario> buscarPorId(int id) {
-        Usuario usuario = usuarioRepository.buscarPorId(id);
+        Usuario usuario = usuarioRepository.obtenerPorId(id);
         return Optional.ofNullable(usuario);
     }
 
@@ -47,23 +47,17 @@ public class UsuarioService {
         if (nombre == null || nombre.trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre no puede ser vacío.");
         }
-        Usuario usuario = usuarioRepository.buscarPorNombre(nombre);
+        Usuario usuario = usuarioRepository.obtenerPorNombreUsuario(nombre);
         return Optional.ofNullable(usuario);
     }
 
-    public List<Usuario> buscarPorRol(Rol rol) {
-        if (rol == null) {
-            throw new IllegalArgumentException("El rol no puede ser nulo.");
-        }
-        return usuarioRepository.buscarPorRol(rol);
-    }
 
     public Usuario actualizarUsuario(Usuario usuarioActualizado) {
-        if (usuarioRepository.buscarPorId(usuarioActualizado.getIdUsuario()) == null) {
+        if (usuarioRepository.obtenerPorId(usuarioActualizado.getIdUsuario()) == null) {
             return null;
         }
 
-        if (usuarioActualizado.getNombre() == null || usuarioActualizado.getNombre().trim().isEmpty()) {
+        if (usuarioActualizado.getNombreUsuario() == null || usuarioActualizado.getNombreUsuario().trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre del usuario es obligatorio.");
         }
 
@@ -91,7 +85,7 @@ public class UsuarioService {
             throw new IllegalArgumentException("La contraseña no puede ser vacía.");
         }
 
-        Usuario usuario = usuarioRepository.validarCredenciales(nombre, contrasena);
+        Usuario usuario = usuarioRepository.validarLogin(nombre, contrasena);
         return Optional.ofNullable(usuario);
     }
 }
