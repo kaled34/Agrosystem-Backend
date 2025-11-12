@@ -1,5 +1,4 @@
 package Model;
-import Model.Raza;
 
 import java.time.LocalDate;
 
@@ -7,25 +6,23 @@ public class Animales {
 
     public int idAnimal;
     public int numArete;
-    public int numCrias;
     public LocalDate fechaNacimiento;
     public LocalDate fechaDestete;
     public LocalDate fecha1erParto;
     public LocalDate fecha1erMonta;
+    public int numCrias;
     public String nombreAnimal;
-    public Raza raza;
+    public String raza;
     public String descripcionAnimal;
     public String estadoActual;
     public boolean sexo;
-    public HistorialParto idHistorialParto;
-
 
     public Animales() {
     }
 
     public Animales(int idAnimal, int numArete, String nombreAnimal, long pesoNacimiento, long pesoActual,
                     LocalDate fechaNacimiento, LocalDate fechaDestete, LocalDate fecha1erParto,
-                    LocalDate fecha1erMonta, Raza raza, boolean sexo, int numCrias,
+                    LocalDate fecha1erMonta, String raza, boolean sexo, int numCrias,
                     String descripcionAnimal, String estadoActual, HistorialParto idHistorialParto) {
 
         this.idAnimal = idAnimal;
@@ -40,7 +37,6 @@ public class Animales {
         this.numCrias = numCrias;
         this.descripcionAnimal = descripcionAnimal;
         this.estadoActual = estadoActual;
-        this.idHistorialParto = idHistorialParto;
     }
 
 
@@ -54,15 +50,12 @@ public class Animales {
     public LocalDate getFechaDestete() { return fechaDestete; }
     public LocalDate getFecha1erParto() { return fecha1erParto; }
     public LocalDate getFecha1erMonta() { return fecha1erMonta; }
-    public Raza getRaza() { return raza; }
+    public String getRaza() { return raza; }
     public boolean isSexo() { return sexo; } // Usamos 'is' para booleanos en Java
     public int getNumCrias() { return numCrias; }
     public String getDescripcionAnimal() { return descripcionAnimal; }
     public String getEstadoActual() { return estadoActual; }
 
-    public HistorialParto getIdHistorialParto() {
-        return idHistorialParto;
-    }
 //setters
 
     public void setNombreAnimal(String nombreAnimal) { this.nombreAnimal = nombreAnimal; }
@@ -73,8 +66,5 @@ public class Animales {
     public void setDescripcionAnimal(String descripcionAnimal) { this.descripcionAnimal = descripcionAnimal; }
     public void setEstadoActual(String estadoActual) { this.estadoActual = estadoActual; }
 
-    public void setIdHistorialParto(HistorialParto idHistorialParto) {
-        this.idHistorialParto = idHistorialParto;
-    }
 }
 
