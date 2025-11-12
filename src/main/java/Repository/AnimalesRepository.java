@@ -2,10 +2,7 @@ package Repository;
 
 import Config.ConfigDB;
 import Model.Animales;
-import Model.Raza;
 
-import Config.ConfigDB;
-import Model.Animales;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +11,8 @@ public class AnimalesRepository {
 
     public Animales crear(Animales animal) {
         String sql = "INSERT INTO animales (numArete, nombreAnimal, fechaNacimiento, fechaDestete, " +
-                "fecha1erParto, fecha1erMonta, numCrias, descripcionAnimal, estadoActual, raza) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "fecha1erParto, fecha1erMonta, raza, sexo, numCrias, descripcionAnimal, estadoActual) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -26,10 +23,11 @@ public class AnimalesRepository {
             stmt.setDate(4, animal.getFechaDestete() != null ? Date.valueOf(animal.getFechaDestete()) : null);
             stmt.setDate(5, animal.getFecha1erParto() != null ? Date.valueOf(animal.getFecha1erParto()) : null);
             stmt.setDate(6, animal.getFecha1erMonta() != null ? Date.valueOf(animal.getFecha1erMonta()) : null);
-            stmt.setInt(7, animal.getNumCrias());
-            stmt.setString(8, animal.getDescripcionAnimal());
-            stmt.setString(9, animal.getEstadoActual());
-            stmt.setString(10, animal.getRaza());
+            stmt.setString(7, animal.getRaza());
+            stmt.setBoolean(8, animal.isSexo());
+            stmt.setInt(9, animal.getNumCrias());
+            stmt.setString(10, animal.getDescripcionAnimal());
+            stmt.setString(11, animal.getEstadoActual());
 
             stmt.executeUpdate();
 
@@ -89,7 +87,7 @@ public class AnimalesRepository {
     public Animales actualizar(Animales animal) {
         String sql = "UPDATE animales SET numArete = ?, nombreAnimal = ?, " +
                 "fechaNacimiento = ?, fechaDestete = ?, fecha1erParto = ?, " +
-                "fecha1erMonta = ?, raza = ?, numCrias = ?, descripcionAnimal = ?, " +
+                "fecha1erMonta = ?, raza = ?, sexo = ?, numCrias = ?, descripcionAnimal = ?, " +
                 "estadoActual = ? WHERE idAnimal = ?";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
@@ -102,10 +100,11 @@ public class AnimalesRepository {
             stmt.setDate(5, animal.getFecha1erParto() != null ? Date.valueOf(animal.getFecha1erParto()) : null);
             stmt.setDate(6, animal.getFecha1erMonta() != null ? Date.valueOf(animal.getFecha1erMonta()) : null);
             stmt.setString(7, animal.getRaza());
-            stmt.setInt(8, animal.getNumCrias());
-            stmt.setString(9, animal.getDescripcionAnimal());
-            stmt.setString(10, animal.getEstadoActual());
-            stmt.setInt(11, animal.getIdAnimal());
+            stmt.setBoolean(8, animal.isSexo());
+            stmt.setInt(9, animal.getNumCrias());
+            stmt.setString(10, animal.getDescripcionAnimal());
+            stmt.setString(11, animal.getEstadoActual());
+            stmt.setInt(12, animal.getIdAnimal());
 
             int rowsAffected = stmt.executeUpdate();
 
@@ -121,9 +120,7 @@ public class AnimalesRepository {
     }
 
     public boolean eliminar(int idAnimal) {
-        String sql = "DELETE FROM animales WHERE idAnimal = ?" + "SELECT * FROM reportemedico WHERE idAnimal = ?" +
-                "SELECT * FROM tarjetasalud WHERE idAnimal = ?" +
-                "SELECT * FROM tratamiento WHERE idAnimal = ?";
+        String sql = "DELETE FROM animales WHERE idAnimal = ?";
 
         try (Connection conn = ConfigDB.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -197,6 +194,7 @@ public class AnimalesRepository {
         animal.fecha1erMonta = fecha1erM != null ? fecha1erM.toLocalDate() : null;
 
         animal.raza = rs.getString("raza");
+        animal.sexo = rs.getBoolean("sexo");
         animal.numCrias = rs.getInt("numCrias");
         animal.descripcionAnimal = rs.getString("descripcionAnimal");
         animal.estadoActual = rs.getString("estadoActual");

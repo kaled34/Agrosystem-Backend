@@ -8,11 +8,12 @@ public class Medicamento {
     public String fechaCaducidad;
     public float cantidadMedicamento;
     public String viaAdministracion;
+    public Animales idAnimal;
 
     public Medicamento(){
     }
 
-    public Medicamento(int idMedicamento, int idAnimal, String nombreMedicamento, String principioActivo, String descripcionMedicamento, String fechaCaducidad, float cantidadMedicamento, String viaAdministracion, Animales idAnimales) {
+    public Medicamento(int idMedicamento, Animales idAnimal, String nombreMedicamento, String principioActivo, String descripcionMedicamento, String fechaCaducidad, float cantidadMedicamento, String viaAdministracion, Animales idAnimales) {
         this.idMedicamento = idMedicamento;
         this.nombreMedicamento = nombreMedicamento;
         this.principioActivo = principioActivo;
@@ -20,6 +21,7 @@ public class Medicamento {
         this.fechaCaducidad = fechaCaducidad;
         this.cantidadMedicamento = cantidadMedicamento;
         this.viaAdministracion = viaAdministracion;
+        this.idAnimal = idAnimal;
     }
 
     //Getters
@@ -47,6 +49,7 @@ public class Medicamento {
         return descripcionMedicamento;
     }
 
+    public Animales getIdAnimal() {return idAnimal; }
 
     //Setters
     public void setDescripcionMedicamento(String descripcionMedicamento) {

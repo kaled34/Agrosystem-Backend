@@ -66,4 +66,8 @@ public class Tratamiento {
     public void setIdAnimales(Animales idAnimales) {
         this.idAnimal = idAnimales;
     }
+
+    public void setIdMedicamento(Medicamento idMedicamento) {
+        this.idMedicamento = idMedicamento;
+    }
 }

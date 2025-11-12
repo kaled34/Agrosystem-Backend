@@ -4,7 +4,7 @@ public class Peso {
     public int idPeso;
     public long pesoNacimiento;
     public double pesoActual;
-
+    public Animales idAnimal;
 public Peso(){}
 
     public Peso(int idPeso,int idAnimal, long pesoNacimiento, long pesoActual, String raza, boolean sexo) {
@@ -22,6 +22,10 @@ public Peso(){}
 
     public double getPesoActual() {
         return pesoActual;
+    }
+
+    public void setIdAnimal(Animales idAnimal) {
+        this.idAnimal = idAnimal;
     }
 
     //setters
