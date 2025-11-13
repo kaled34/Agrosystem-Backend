@@ -7,21 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AnalisisRepository {
-    private Connection connection;
 
-    // ✅ CORREGIDO: Constructor sin parámetros
-    public AnalisisRepository() {
-        try {
-            this.connection = ConfigDB.getDataSource().getConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    private Connection getConnection() throws SQLException {
+        return ConfigDB.getDataSource().getConnection();
     }
 
-    // Crear un nuevo análisis
     public boolean crear(Analisis analisis) {
         String sql = "INSERT INTO Analisis (tipo_analisis, resultado, interpretacion) VALUES (?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, analisis.getTipoAnalisis());
             stmt.setString(2, analisis.getResultado());
             stmt.setString(3, analisis.getInterpretacion());
@@ -43,10 +37,10 @@ public class AnalisisRepository {
         }
     }
 
-    // Obtener análisis por ID
     public Analisis obtenerPorId(int idAnalisis) {
         String sql = "SELECT * FROM Analisis WHERE id_analisis = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idAnalisis);
             ResultSet rs = stmt.executeQuery();
 
@@ -59,12 +53,12 @@ public class AnalisisRepository {
         return null;
     }
 
-    // Obtener todos los análisis
     public List<Analisis> obtenerTodos() {
         List<Analisis> analisisList = new ArrayList<>();
         String sql = "SELECT * FROM Analisis";
 
-        try (Statement stmt = connection.createStatement();
+        try (Connection connection = getConnection();
+             Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
@@ -76,12 +70,12 @@ public class AnalisisRepository {
         return analisisList;
     }
 
-    // Obtener análisis por tipo
     public List<Analisis> obtenerPorTipo(String tipoAnalisis) {
         List<Analisis> analisisList = new ArrayList<>();
         String sql = "SELECT * FROM Analisis WHERE tipo_analisis = ?";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, tipoAnalisis);
             ResultSet rs = stmt.executeQuery();
 
@@ -94,10 +88,10 @@ public class AnalisisRepository {
         return analisisList;
     }
 
-    // Actualizar análisis
     public boolean actualizar(Analisis analisis) {
         String sql = "UPDATE Analisis SET tipo_analisis = ?, resultado = ?, interpretacion = ? WHERE id_analisis = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, analisis.getTipoAnalisis());
             stmt.setString(2, analisis.getResultado());
             stmt.setString(3, analisis.getInterpretacion());
@@ -110,10 +104,10 @@ public class AnalisisRepository {
         }
     }
 
-    // Eliminar análisis
     public boolean eliminar(int idAnalisis) {
         String sql = "DELETE FROM Analisis WHERE id_analisis = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idAnalisis);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -122,7 +116,6 @@ public class AnalisisRepository {
         }
     }
 
-    // Método auxiliar para mapear ResultSet a objeto Analisis
     private Analisis mapearAnalisis(ResultSet rs) throws SQLException {
         return new Analisis(
                 rs.getInt("id_analisis"),

@@ -9,23 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PartoRepository {
-    private Connection connection;
-    private AnimalesRepository animalRepository;
 
-    // ✅ CORREGIDO: Constructor sin parámetros
-    public PartoRepository() {
-        try {
-            this.connection = ConfigDB.getDataSource().getConnection();
-            this.animalRepository = new AnimalesRepository();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    private Connection getConnection() throws SQLException {
+        return ConfigDB.getDataSource().getConnection();
     }
 
-    // Crear un nuevo registro de parto
     public boolean crear(Parto parto) {
         String sql = "INSERT INTO Parto (id_madre, fecha, cantidadCrias) VALUES (?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, parto.getIdMadre().getIdAnimal());
             stmt.setDate(2, Date.valueOf(parto.getFecha()));
             stmt.setInt(3, parto.getCantidadCrias());
@@ -47,10 +39,10 @@ public class PartoRepository {
         }
     }
 
-    // Obtener parto por ID
     public Parto obtenerPorId(int idParto) {
         String sql = "SELECT * FROM Parto WHERE id_Parto = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idParto);
             ResultSet rs = stmt.executeQuery();
 
@@ -63,12 +55,12 @@ public class PartoRepository {
         return null;
     }
 
-    // Obtener todos los partos
     public List<Parto> obtenerTodos() {
         List<Parto> partos = new ArrayList<>();
         String sql = "SELECT * FROM Parto ORDER BY fecha DESC";
 
-        try (Statement stmt = connection.createStatement();
+        try (Connection connection = getConnection();
+             Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
@@ -80,12 +72,12 @@ public class PartoRepository {
         return partos;
     }
 
-    // Obtener partos por madre
     public List<Parto> obtenerPorMadre(int idMadre) {
         List<Parto> partos = new ArrayList<>();
         String sql = "SELECT * FROM Parto WHERE id_madre = ? ORDER BY fecha DESC";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idMadre);
             ResultSet rs = stmt.executeQuery();
 
@@ -98,10 +90,10 @@ public class PartoRepository {
         return partos;
     }
 
-    // Obtener el último parto de una madre
     public Parto obtenerUltimoPartoPorMadre(int idMadre) {
         String sql = "SELECT * FROM Parto WHERE id_madre = ? ORDER BY fecha DESC LIMIT 1";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idMadre);
             ResultSet rs = stmt.executeQuery();
 
@@ -114,12 +106,12 @@ public class PartoRepository {
         return null;
     }
 
-    // Obtener partos por rango de fechas
     public List<Parto> obtenerPorRangoFechas(LocalDate fechaInicio, LocalDate fechaFin) {
         List<Parto> partos = new ArrayList<>();
         String sql = "SELECT * FROM Parto WHERE fecha BETWEEN ? AND ? ORDER BY fecha DESC";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setDate(1, Date.valueOf(fechaInicio));
             stmt.setDate(2, Date.valueOf(fechaFin));
             ResultSet rs = stmt.executeQuery();
@@ -133,12 +125,12 @@ public class PartoRepository {
         return partos;
     }
 
-    // Obtener partos del año actual
     public List<Parto> obtenerPartosDelAño(int año) {
         List<Parto> partos = new ArrayList<>();
         String sql = "SELECT * FROM Parto WHERE YEAR(fecha) = ? ORDER BY fecha DESC";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, año);
             ResultSet rs = stmt.executeQuery();
 
@@ -151,10 +143,10 @@ public class PartoRepository {
         return partos;
     }
 
-    // Contar total de crías por madre
     public int contarTotalCriasPorMadre(int idMadre) {
         String sql = "SELECT SUM(cantidadCrias) as total FROM Parto WHERE id_madre = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idMadre);
             ResultSet rs = stmt.executeQuery();
 
@@ -167,10 +159,10 @@ public class PartoRepository {
         return 0;
     }
 
-    // Obtener estadísticas de partos (promedio de crías)
     public double obtenerPromedioMadre(int idMadre) {
         String sql = "SELECT AVG(cantidadCrias) as promedio FROM Parto WHERE id_madre = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idMadre);
             ResultSet rs = stmt.executeQuery();
 
@@ -183,10 +175,10 @@ public class PartoRepository {
         return 0.0;
     }
 
-    // Actualizar registro de parto
     public boolean actualizar(Parto parto) {
         String sql = "UPDATE Parto SET fecha = ?, cantidadCrias = ? WHERE id_Parto = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setDate(1, Date.valueOf(parto.getFecha()));
             stmt.setInt(2, parto.getCantidadCrias());
             stmt.setInt(3, parto.getIdParto());
@@ -198,10 +190,10 @@ public class PartoRepository {
         }
     }
 
-    // Eliminar registro de parto
     public boolean eliminar(int idParto) {
         String sql = "DELETE FROM Parto WHERE id_Parto = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idParto);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -210,8 +202,8 @@ public class PartoRepository {
         }
     }
 
-    // Método auxiliar para mapear ResultSet a objeto Parto
     private Parto mapearParto(ResultSet rs) throws SQLException {
+        AnimalesRepository animalRepository = new AnimalesRepository();
         Animales madre = animalRepository.obtenerPorId(rs.getInt("id_madre"));
 
         return new Parto(

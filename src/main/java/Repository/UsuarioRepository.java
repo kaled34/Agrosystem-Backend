@@ -8,22 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UsuarioRepository {
-    private Connection connection;
-    private RolRepository rolRepository;
 
-    // ✅ CORREGIDO: Constructor sin parámetros
-    public UsuarioRepository() {
-        try {
-            this.connection = ConfigDB.getDataSource().getConnection();
-            this.rolRepository = new RolRepository();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    private Connection getConnection() throws SQLException {
+        return ConfigDB.getDataSource().getConnection();
     }
 
     public Usuario crear(Usuario usuario) {
         String sql = "INSERT INTO Usuario (nombre_usuario, contrasena, correo, telefono, id_rol, activo) VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, usuario.getNombreUsuario());
             stmt.setString(2, usuario.getContrasena());
             stmt.setString(3, usuario.getCorreo());
@@ -50,11 +43,13 @@ public class UsuarioRepository {
 
     public Usuario obtenerPorId(int idUsuario) {
         String sql = "SELECT * FROM Usuario WHERE id_usuario = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idUsuario);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
+                RolRepository rolRepository = new RolRepository();
                 Rol rol = rolRepository.obtenerPorId(rs.getInt("id_rol"));
 
                 return new Usuario(
@@ -75,11 +70,13 @@ public class UsuarioRepository {
 
     public Usuario obtenerPorNombreUsuario(String nombreUsuario) {
         String sql = "SELECT * FROM Usuario WHERE nombre_usuario = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, nombreUsuario);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
+                RolRepository rolRepository = new RolRepository();
                 Rol rol = rolRepository.obtenerPorId(rs.getInt("id_rol"));
 
                 return new Usuario(
@@ -102,8 +99,11 @@ public class UsuarioRepository {
         List<Usuario> usuarios = new ArrayList<>();
         String sql = "SELECT * FROM Usuario";
 
-        try (Statement stmt = connection.createStatement();
+        try (Connection connection = getConnection();
+             Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
+
+            RolRepository rolRepository = new RolRepository();
 
             while (rs.next()) {
                 Rol rol = rolRepository.obtenerPorId(rs.getInt("id_rol"));
@@ -128,8 +128,11 @@ public class UsuarioRepository {
         List<Usuario> usuarios = new ArrayList<>();
         String sql = "SELECT * FROM Usuario WHERE activo = true";
 
-        try (Statement stmt = connection.createStatement();
+        try (Connection connection = getConnection();
+             Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
+
+            RolRepository rolRepository = new RolRepository();
 
             while (rs.next()) {
                 Rol rol = rolRepository.obtenerPorId(rs.getInt("id_rol"));
@@ -152,7 +155,8 @@ public class UsuarioRepository {
 
     public Usuario actualizar(Usuario usuario) {
         String sql = "UPDATE Usuario SET nombre_usuario = ?, contrasena = ?, correo = ?, telefono = ?, id_rol = ?, activo = ? WHERE id_usuario = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, usuario.getNombreUsuario());
             stmt.setString(2, usuario.getContrasena());
             stmt.setString(3, usuario.getCorreo());
@@ -173,7 +177,8 @@ public class UsuarioRepository {
 
     public boolean desactivar(int idUsuario) {
         String sql = "UPDATE Usuario SET activo = false WHERE id_usuario = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idUsuario);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -184,7 +189,8 @@ public class UsuarioRepository {
 
     public boolean eliminar(int idUsuario) {
         String sql = "DELETE FROM Usuario WHERE id_usuario = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idUsuario);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -193,7 +199,6 @@ public class UsuarioRepository {
         }
     }
 
-    // ✅ AGREGADO: Método validarCredenciales (nombre correcto para el Controller)
     public Usuario validarCredenciales(String nombreUsuario, String contrasena) {
         Usuario usuario = obtenerPorNombreUsuario(nombreUsuario);
         if (usuario != null && usuario.getContrasena().equals(contrasena) && usuario.isActivo()) {
@@ -202,24 +207,24 @@ public class UsuarioRepository {
         return null;
     }
 
-    // Mantener también validarLogin por compatibilidad
     public Usuario validarLogin(String nombreUsuario, String contrasena) {
         return validarCredenciales(nombreUsuario, contrasena);
     }
 
-    // ✅ AGREGADO: Método buscarPorNombre (alias de obtenerPorNombreUsuario)
     public Usuario buscarPorNombre(String nombre) {
         return obtenerPorNombreUsuario(nombre);
     }
 
-    // ✅ AGREGADO: Método buscarPorRol
     public List<Usuario> buscarPorRol(Rol rol) {
         List<Usuario> usuarios = new ArrayList<>();
         String sql = "SELECT * FROM Usuario WHERE id_rol = ?";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, rol.getIdRol());
             ResultSet rs = stmt.executeQuery();
+
+            RolRepository rolRepository = new RolRepository();
 
             while (rs.next()) {
                 Rol rolCompleto = rolRepository.obtenerPorId(rs.getInt("id_rol"));

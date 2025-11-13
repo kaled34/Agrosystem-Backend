@@ -8,20 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AnimalesRepository {
-    private Connection connection;
 
-    // ✅ CORREGIDO: Constructor sin parámetros
-    public AnimalesRepository() {
-        try {
-            this.connection = ConfigDB.getDataSource().getConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    private Connection getConnection() throws SQLException {
+        return ConfigDB.getDataSource().getConnection();
     }
 
     public Animales crear(Animales animal) {
         String sql = "INSERT INTO Animal (nombre_animal, num_arete, rebaño, fecha_nac, peso_inicial, caracteristica, edad, procedencia, sexo, id_padre, id_madre, id_propietario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, animal.getNombreAnimal());
             stmt.setInt(2, animal.getNumArete());
             stmt.setString(3, animal.getRebaño());
@@ -65,7 +60,8 @@ public class AnimalesRepository {
 
     public Animales obtenerPorId(int idAnimal) {
         String sql = "SELECT * FROM Animal WHERE id_animal = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idAnimal);
             ResultSet rs = stmt.executeQuery();
 
@@ -80,7 +76,8 @@ public class AnimalesRepository {
 
     public Animales obtenerPorNumArete(int numArete) {
         String sql = "SELECT * FROM Animal WHERE num_arete = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, numArete);
             ResultSet rs = stmt.executeQuery();
 
@@ -97,7 +94,8 @@ public class AnimalesRepository {
         List<Animales> animales = new ArrayList<>();
         String sql = "SELECT * FROM Animal";
 
-        try (Statement stmt = connection.createStatement();
+        try (Connection connection = getConnection();
+             Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
@@ -113,7 +111,8 @@ public class AnimalesRepository {
         List<Animales> animales = new ArrayList<>();
         String sql = "SELECT * FROM Animal WHERE rebaño = ?";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, rebaño);
             ResultSet rs = stmt.executeQuery();
 
@@ -130,7 +129,8 @@ public class AnimalesRepository {
         List<Animales> animales = new ArrayList<>();
         String sql = "SELECT * FROM Animal WHERE sexo = ?";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, sexo ? "M" : "F");
             ResultSet rs = stmt.executeQuery();
 
@@ -147,7 +147,8 @@ public class AnimalesRepository {
         List<Animales> animales = new ArrayList<>();
         String sql = "SELECT * FROM Animal WHERE id_propietario = ?";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idPropietario);
             ResultSet rs = stmt.executeQuery();
 
@@ -166,7 +167,8 @@ public class AnimalesRepository {
                 "SELECT * FROM Animal WHERE id_padre = ?" :
                 "SELECT * FROM Animal WHERE id_madre = ?";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idPadreOMadre);
             ResultSet rs = stmt.executeQuery();
 
@@ -181,7 +183,8 @@ public class AnimalesRepository {
 
     public Animales actualizar(Animales animal) {
         String sql = "UPDATE Animal SET nombre_animal = ?, num_arete = ?, rebaño = ?, caracteristica = ? WHERE id_animal = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, animal.getNombreAnimal());
             stmt.setInt(2, animal.getNumArete());
             stmt.setString(3, animal.getRebaño());
@@ -200,7 +203,8 @@ public class AnimalesRepository {
 
     public boolean eliminar(int idAnimal) {
         String sql = "DELETE FROM Animal WHERE id_animal = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idAnimal);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -209,7 +213,6 @@ public class AnimalesRepository {
         }
     }
 
-    // Método auxiliar para mapear ResultSet a objeto Animales
     private Animales mapearAnimal(ResultSet rs) throws SQLException {
         return new Animales(
                 rs.getInt("id_animal"),

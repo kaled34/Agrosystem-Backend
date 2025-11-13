@@ -7,21 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RolRepository {
-    private Connection connection;
 
-    // Constructor sin parámetros que obtiene la conexión del pool
-    public RolRepository() {
-        try {
-            this.connection = ConfigDB.getDataSource().getConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    private Connection getConnection() throws SQLException {
+        return ConfigDB.getDataSource().getConnection();
     }
 
-    // Crear un nuevo rol
     public Rol crear(Rol rol) {
         String sql = "INSERT INTO Rol (nombre_rol) VALUES (?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, rol.getNombre());
             int affectedRows = stmt.executeUpdate();
 
@@ -40,10 +34,10 @@ public class RolRepository {
         }
     }
 
-    // Obtener rol por ID
     public Rol obtenerPorId(int idRol) {
         String sql = "SELECT * FROM Rol WHERE id_rol = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idRol);
             ResultSet rs = stmt.executeQuery();
 
@@ -59,12 +53,12 @@ public class RolRepository {
         return null;
     }
 
-    // Obtener todos los roles
     public List<Rol> obtenerTodos() {
         List<Rol> roles = new ArrayList<>();
         String sql = "SELECT * FROM Rol";
 
-        try (Statement stmt = connection.createStatement();
+        try (Connection connection = getConnection();
+             Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
@@ -79,10 +73,10 @@ public class RolRepository {
         return roles;
     }
 
-    // Actualizar rol
     public Rol actualizar(Rol rol) {
         String sql = "UPDATE Rol SET nombre_rol = ? WHERE id_rol = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, rol.getNombre());
             stmt.setInt(2, rol.getIdRol());
 
@@ -96,10 +90,10 @@ public class RolRepository {
         }
     }
 
-    // Eliminar rol
     public boolean eliminar(int idRol) {
         String sql = "DELETE FROM Rol WHERE id_rol = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idRol);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -108,10 +102,10 @@ public class RolRepository {
         }
     }
 
-    // ✅ CORREGIDO: Método obtenerPorNombre
     public Rol obtenerPorNombre(String nombre) {
         String sql = "SELECT * FROM Rol WHERE nombre_rol = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, nombre);
             ResultSet rs = stmt.executeQuery();
 

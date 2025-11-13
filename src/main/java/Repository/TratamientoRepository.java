@@ -12,29 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TratamientoRepository {
-    private Connection connection;
-    private AnimalesRepository animalRepository;
-    private ReporteMedicoRepository reporteMedicoRepository;
-    private UsuarioRepository usuarioRepository;
-    private MedicamentoRepository medicamentoRepository;
 
-    // ✅ CORREGIDO: Constructor sin parámetros
-    public TratamientoRepository() {
-        try {
-            this.connection = ConfigDB.getDataSource().getConnection();
-            this.animalRepository = new AnimalesRepository();
-            this.reporteMedicoRepository = new ReporteMedicoRepository();
-            this.usuarioRepository = new UsuarioRepository();
-            this.medicamentoRepository = new MedicamentoRepository();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    private Connection getConnection() throws SQLException {
+        return ConfigDB.getDataSource().getConnection();
     }
 
-    // Crear un nuevo tratamiento
     public Tratamiento crear(Tratamiento tratamiento) {
         String sql = "INSERT INTO Tratamientos (id_animal, id_reporte, id_usuario, nombre_tratamiento, fecha_inicio, fecha_fin, id_medicamento, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, tratamiento.getIdAnimales().getIdAnimal());
             stmt.setInt(2, tratamiento.getIdReporte().getIdReporte());
             stmt.setInt(3, tratamiento.getIdUsuario().getIdUsuario());
@@ -61,10 +47,10 @@ public class TratamientoRepository {
         }
     }
 
-    // Obtener tratamiento por ID
     public Tratamiento obtenerPorId(int idTratamiento) {
         String sql = "SELECT * FROM Tratamientos WHERE id_tratamiento = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idTratamiento);
             ResultSet rs = stmt.executeQuery();
 
@@ -77,12 +63,12 @@ public class TratamientoRepository {
         return null;
     }
 
-    // Obtener todos los tratamientos
     public List<Tratamiento> obtenerTodos() {
         List<Tratamiento> tratamientos = new ArrayList<>();
         String sql = "SELECT * FROM Tratamientos ORDER BY fecha_inicio DESC";
 
-        try (Statement stmt = connection.createStatement();
+        try (Connection connection = getConnection();
+             Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
@@ -94,12 +80,12 @@ public class TratamientoRepository {
         return tratamientos;
     }
 
-    // Obtener tratamientos por animal
     public List<Tratamiento> obtenerPorAnimal(int idAnimal) {
         List<Tratamiento> tratamientos = new ArrayList<>();
         String sql = "SELECT * FROM Tratamientos WHERE id_animal = ? ORDER BY fecha_inicio DESC";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idAnimal);
             ResultSet rs = stmt.executeQuery();
 
@@ -112,12 +98,12 @@ public class TratamientoRepository {
         return tratamientos;
     }
 
-    // Obtener tratamientos activos (no finalizados)
     public List<Tratamiento> obtenerActivos() {
         List<Tratamiento> tratamientos = new ArrayList<>();
         String sql = "SELECT * FROM Tratamientos WHERE fecha_fin >= CURDATE() ORDER BY fecha_inicio DESC";
 
-        try (Statement stmt = connection.createStatement();
+        try (Connection connection = getConnection();
+             Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
@@ -129,12 +115,12 @@ public class TratamientoRepository {
         return tratamientos;
     }
 
-    // Obtener tratamientos activos por animal
     public List<Tratamiento> obtenerActivosPorAnimal(int idAnimal) {
         List<Tratamiento> tratamientos = new ArrayList<>();
         String sql = "SELECT * FROM Tratamientos WHERE id_animal = ? AND fecha_fin >= CURDATE() ORDER BY fecha_inicio DESC";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idAnimal);
             ResultSet rs = stmt.executeQuery();
 
@@ -147,12 +133,12 @@ public class TratamientoRepository {
         return tratamientos;
     }
 
-    // Obtener tratamientos por reporte médico
     public List<Tratamiento> obtenerPorReporte(int idReporte) {
         List<Tratamiento> tratamientos = new ArrayList<>();
         String sql = "SELECT * FROM Tratamientos WHERE id_reporte = ?";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idReporte);
             ResultSet rs = stmt.executeQuery();
 
@@ -165,12 +151,12 @@ public class TratamientoRepository {
         return tratamientos;
     }
 
-    // Obtener tratamientos por usuario
     public List<Tratamiento> obtenerPorUsuario(int idUsuario) {
         List<Tratamiento> tratamientos = new ArrayList<>();
         String sql = "SELECT * FROM Tratamientos WHERE id_usuario = ? ORDER BY fecha_inicio DESC";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idUsuario);
             ResultSet rs = stmt.executeQuery();
 
@@ -183,12 +169,12 @@ public class TratamientoRepository {
         return tratamientos;
     }
 
-    // Obtener tratamientos por medicamento
     public List<Tratamiento> obtenerPorMedicamento(int idMedicamento) {
         List<Tratamiento> tratamientos = new ArrayList<>();
         String sql = "SELECT * FROM Tratamientos WHERE id_medicamento = ? ORDER BY fecha_inicio DESC";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idMedicamento);
             ResultSet rs = stmt.executeQuery();
 
@@ -201,10 +187,10 @@ public class TratamientoRepository {
         return tratamientos;
     }
 
-    // Actualizar tratamiento
     public Tratamiento actualizar(Tratamiento tratamiento) {
         String sql = "UPDATE Tratamientos SET id_animal = ?, id_reporte = ?, id_usuario = ?, nombre_tratamiento = ?, fecha_fin = ?, id_medicamento = ?, observaciones = ? WHERE id_tratamiento = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, tratamiento.getIdAnimales().getIdAnimal());
             stmt.setInt(2, tratamiento.getIdReporte().getIdReporte());
             stmt.setInt(3, tratamiento.getIdUsuario().getIdUsuario());
@@ -224,10 +210,10 @@ public class TratamientoRepository {
         }
     }
 
-    // Eliminar tratamiento
     public boolean eliminar(int idTratamiento) {
         String sql = "DELETE FROM Tratamientos WHERE id_tratamiento = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idTratamiento);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -236,8 +222,12 @@ public class TratamientoRepository {
         }
     }
 
-    // Método auxiliar para mapear ResultSet a objeto Tratamiento
     private Tratamiento mapearTratamiento(ResultSet rs) throws SQLException {
+        AnimalesRepository animalRepository = new AnimalesRepository();
+        ReporteMedicoRepository reporteMedicoRepository = new ReporteMedicoRepository();
+        UsuarioRepository usuarioRepository = new UsuarioRepository();
+        MedicamentoRepository medicamentoRepository = new MedicamentoRepository();
+
         Animales animal = animalRepository.obtenerPorId(rs.getInt("id_animal"));
         ReporteMedico reporte = reporteMedicoRepository.obtenerPorId(rs.getInt("id_reporte"));
         Usuario usuario = usuarioRepository.obtenerPorId(rs.getInt("id_usuario"));

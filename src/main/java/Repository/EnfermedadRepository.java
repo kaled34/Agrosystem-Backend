@@ -9,25 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EnfermedadRepository {
-    private Connection connection;
-    private MedicamentoRepository medicamentoRepository;
-    private AnalisisRepository analisisRepository;
 
-    public EnfermedadRepository() {
-        try {
-            this.connection = ConfigDB.getDataSource().getConnection();
-            this.medicamentoRepository = new MedicamentoRepository();
-            this.analisisRepository = new AnalisisRepository();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    private Connection getConnection() throws SQLException {
+        return ConfigDB.getDataSource().getConnection();
     }
 
-
-    // Crear una nueva enfermedad
     public Enfermedad crear(Enfermedad enfermedad) {
         String sql = "INSERT INTO Enfermedad (nombre_enfermedad, tipo_enfermedad, sintomas, duracion_estimada, tratamientos_recomendados, id_medicamento, nivel_riesgo, modo_transmision, id_analisis) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, enfermedad.getNombreEnfermedad());
             stmt.setString(2, enfermedad.getTipoEnfermedad());
             stmt.setString(3, enfermedad.getSintomas());
@@ -66,11 +56,10 @@ public class EnfermedadRepository {
         }
     }
 
-
-    // Obtener enfermedad por ID
     public Enfermedad obtenerPorId(int idEnfermedad) {
         String sql = "SELECT * FROM Enfermedad WHERE id_enfermedad = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idEnfermedad);
             ResultSet rs = stmt.executeQuery();
 
@@ -83,10 +72,10 @@ public class EnfermedadRepository {
         return null;
     }
 
-    // Obtener enfermedad por nombre
     public Enfermedad obtenerPorNombre(String nombreEnfermedad) {
         String sql = "SELECT * FROM Enfermedad WHERE nombre_enfermedad = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, nombreEnfermedad);
             ResultSet rs = stmt.executeQuery();
 
@@ -99,12 +88,12 @@ public class EnfermedadRepository {
         return null;
     }
 
-    // Obtener todas las enfermedades
     public List<Enfermedad> obtenerTodas() {
         List<Enfermedad> enfermedades = new ArrayList<>();
         String sql = "SELECT * FROM Enfermedad";
 
-        try (Statement stmt = connection.createStatement();
+        try (Connection connection = getConnection();
+             Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
@@ -116,12 +105,12 @@ public class EnfermedadRepository {
         return enfermedades;
     }
 
-    // Obtener enfermedades por tipo
     public List<Enfermedad> obtenerPorTipo(String tipoEnfermedad) {
         List<Enfermedad> enfermedades = new ArrayList<>();
         String sql = "SELECT * FROM Enfermedad WHERE tipo_enfermedad = ?";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, tipoEnfermedad);
             ResultSet rs = stmt.executeQuery();
 
@@ -134,12 +123,12 @@ public class EnfermedadRepository {
         return enfermedades;
     }
 
-    // Obtener enfermedades por nivel de riesgo
     public List<Enfermedad> obtenerPorNivelRiesgo(String nivelRiesgo) {
         List<Enfermedad> enfermedades = new ArrayList<>();
         String sql = "SELECT * FROM Enfermedad WHERE nivel_riesgo = ?";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, nivelRiesgo);
             ResultSet rs = stmt.executeQuery();
 
@@ -152,10 +141,10 @@ public class EnfermedadRepository {
         return enfermedades;
     }
 
-    // Actualizar enfermedad
     public Enfermedad actualizar(Enfermedad enfermedad) {
         String sql = "UPDATE Enfermedad SET nombre_enfermedad = ?, tipo_enfermedad = ?, sintomas = ?, duracion_estimada = ?, tratamientos_recomendados = ?, id_medicamento = ?, nivel_riesgo = ?, modo_transmision = ?, id_analisis = ? WHERE id_enfermedad = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, enfermedad.getNombreEnfermedad());
             stmt.setString(2, enfermedad.getTipoEnfermedad());
             stmt.setString(3, enfermedad.getSintomas());
@@ -189,10 +178,10 @@ public class EnfermedadRepository {
         }
     }
 
-    // Eliminar enfermedad
     public boolean eliminar(int idEnfermedad) {
         String sql = "DELETE FROM Enfermedad WHERE id_enfermedad = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idEnfermedad);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -201,8 +190,10 @@ public class EnfermedadRepository {
         }
     }
 
-    // Método auxiliar para mapear ResultSet a objeto Enfermedad
     private Enfermedad mapearEnfermedad(ResultSet rs) throws SQLException {
+        MedicamentoRepository medicamentoRepository = new MedicamentoRepository();
+        AnalisisRepository analisisRepository = new AnalisisRepository();
+
         Medicamento medicamento = null;
         if (rs.getInt("id_medicamento") > 0) {
             medicamento = medicamentoRepository.obtenerPorId(rs.getInt("id_medicamento"));
@@ -221,7 +212,7 @@ public class EnfermedadRepository {
                 rs.getInt("duracion_estimada"),
                 rs.getString("tratamientos_recomendados"),
                 medicamento,
-                "", // descripcionEnfermedad no existe en BD
+                "",
                 rs.getString("nivel_riesgo"),
                 rs.getString("modo_transmision"),
                 analisis
