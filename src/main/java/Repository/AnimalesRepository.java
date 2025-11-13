@@ -13,7 +13,7 @@ public class AnimalesRepository {
         this.connection = connection;
     }
 
-    public boolean crear(Animales animal) {
+    public Animales crear(Animales animal) {
         String sql = "INSERT INTO Animal (nombre_animal, num_arete, rebaño, fecha_nac, peso_inicial, caracteristica, edad, procedencia, sexo, id_padre, id_madre, id_propietario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, animal.getNombreAnimal());
@@ -48,12 +48,12 @@ public class AnimalesRepository {
                         animal.idAnimal = generatedKeys.getInt(1);
                     }
                 }
-                return true;
+                return animal;
             }
-            return false;
+            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
     public Animales obtenerPorId(int idAnimal) {
@@ -172,7 +172,7 @@ public class AnimalesRepository {
         return animales;
     }
 
-    public boolean actualizar(Animales animal) {
+    public Animales actualizar(Animales animal) {
         String sql = "UPDATE Animal SET nombre_animal = ?, num_arete = ?, rebaño = ?, caracteristica = ? WHERE id_animal = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, animal.getNombreAnimal());
@@ -181,13 +181,15 @@ public class AnimalesRepository {
             stmt.setString(4, animal.getCaracteristica());
             stmt.setInt(5, animal.getIdAnimal());
 
-            return stmt.executeUpdate() > 0;
+            if (stmt.executeUpdate() > 0) {
+                return animal;
+            }
+            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
-
     public boolean eliminar(int idAnimal) {
         String sql = "DELETE FROM Animal WHERE id_animal = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {

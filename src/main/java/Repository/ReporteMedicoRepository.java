@@ -20,7 +20,7 @@ public class ReporteMedicoRepository {
     }
 
     // Crear un nuevo reporte médico
-    public boolean crear(ReporteMedico reporte) {
+    public ReporteMedico crear(ReporteMedico reporte) {
         String sql = "INSERT INTO ReporteMedico (id_animal, id_usuario, temperatura, condicion_corporal, frecuencia_respiratoria, fecha, diagnostico_presuntivo, diagnostico_definitivo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, reporte.getIdAnimales().getIdAnimal());
@@ -40,12 +40,12 @@ public class ReporteMedicoRepository {
                         reporte.idReporte = generatedKeys.getInt(1);
                     }
                 }
-                return true;
+                return reporte;
             }
-            return false;
+            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 
@@ -156,7 +156,7 @@ public class ReporteMedicoRepository {
     }
 
     // Actualizar reporte médico
-    public boolean actualizar(ReporteMedico reporte) {
+    public ReporteMedico actualizar(ReporteMedico reporte) {
         String sql = "UPDATE ReporteMedico SET id_animal = ?, id_usuario = ?, temperatura = ?, condicion_corporal = ?, frecuencia_respiratoria = ?, fecha = ?, diagnostico_presuntivo = ?, diagnostico_definitivo = ? WHERE id_reporte = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, reporte.getIdAnimales().getIdAnimal());
@@ -169,10 +169,13 @@ public class ReporteMedicoRepository {
             stmt.setString(8, reporte.getDiagnosticoDefinitivo());
             stmt.setInt(9, reporte.getIdReporte());
 
-            return stmt.executeUpdate() > 0;
+            if (stmt.executeUpdate() > 0) {
+                return reporte;
+            }
+            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 

@@ -22,7 +22,7 @@ public class TarjetaSaludRepository {
     }
 
     // Crear una nueva tarjeta de salud
-    public boolean crear(TarjetaSalud tarjeta) {
+    public TarjetaSalud crear(TarjetaSalud tarjeta) {
         String sql = "INSERT INTO TarjetaSalud (id_animal, id_enfermedad, id_tratamiento) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, tarjeta.getIdAnimal().getIdAnimal());
@@ -37,12 +37,12 @@ public class TarjetaSaludRepository {
                         tarjeta.idTarjeta = generatedKeys.getInt(1);
                     }
                 }
-                return true;
+                return tarjeta;
             }
-            return false;
+            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 
@@ -132,7 +132,7 @@ public class TarjetaSaludRepository {
     }
 
     // Actualizar tarjeta de salud
-    public boolean actualizar(TarjetaSalud tarjeta) {
+    public TarjetaSalud actualizar(TarjetaSalud tarjeta) {
         String sql = "UPDATE TarjetaSalud SET id_animal = ?, id_enfermedad = ?, id_tratamiento = ? WHERE id_tarjeta = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, tarjeta.getIdAnimal().getIdAnimal());
@@ -140,10 +140,13 @@ public class TarjetaSaludRepository {
             stmt.setInt(3, tarjeta.getIdTratamiento().getIdTratamiento());
             stmt.setInt(4, tarjeta.getIdTarjeta());
 
-            return stmt.executeUpdate() > 0;
+            if (stmt.executeUpdate() > 0) {
+                return tarjeta;
+            }
+            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 

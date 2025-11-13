@@ -13,14 +13,14 @@ public class MedicamentoRepository {
     }
 
     // Crear un nuevo medicamento
-    public boolean crear(Medicamento medicamento) {
+    public Medicamento crear(Medicamento medicamento) {
         String sql = "INSERT INTO Medicamentos (nombre_medicamento, solucion, dosis, caducidad, via_administracion, composicion, indicaciones, frecuencia_aplicacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, medicamento.getNombreMedicamento());
             stmt.setString(2, medicamento.getSolucion());
             stmt.setFloat(3, medicamento.getDosis());
             stmt.setTimestamp(4, new Timestamp(medicamento.getCaducidad().getTime()));
-            stmt.setString(5, medicamento.getviaAdministracion());
+            stmt.setString(5, medicamento.viaAdministracion);
             stmt.setString(6, medicamento.getComposicion());
             stmt.setString(7, medicamento.getIndicaciones());
             stmt.setString(8, medicamento.getFrecuenciaAplicacion());
@@ -33,12 +33,12 @@ public class MedicamentoRepository {
                         medicamento.idMedicamento = generatedKeys.getInt(1);
                     }
                 }
-                return true;
+                return null;
             }
-            return false;
+            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 
@@ -127,7 +127,7 @@ public class MedicamentoRepository {
     }
 
     // Actualizar medicamento
-    public boolean actualizar(Medicamento medicamento) {
+    public Medicamento actualizar(Medicamento medicamento) {
         String sql = "UPDATE Medicamentos SET nombre_medicamento = ?, dosis = ?, caducidad = ?, composicion = ?, indicaciones = ?, frecuencia_aplicacion = ?, via_administracion = ? WHERE id_medicamento = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, medicamento.getNombreMedicamento());
@@ -136,13 +136,16 @@ public class MedicamentoRepository {
             stmt.setString(4, medicamento.getComposicion());
             stmt.setString(5, medicamento.getIndicaciones());
             stmt.setString(6, medicamento.getFrecuenciaAplicacion());
-            stmt.setString(7, medicamento.getViaAdministracion());
+            stmt.setString(7, medicamento.viaAdministracion);
             stmt.setInt(8, medicamento.getIdMedicamento());
 
-            return stmt.executeUpdate() > 0;
+            if (stmt.executeUpdate() > 0) {
+                return medicamento;
+            }
+            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 

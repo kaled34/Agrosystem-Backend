@@ -26,7 +26,7 @@ public class TratamientoRepository {
     }
 
     // Crear un nuevo tratamiento
-    public boolean crear(Tratamiento tratamiento) {
+    public Tratamiento crear(Tratamiento tratamiento) {
         String sql = "INSERT INTO Tratamientos (id_animal, id_reporte, id_usuario, nombre_tratamiento, fecha_inicio, fecha_fin, id_medicamento, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, tratamiento.getIdAnimales().getIdAnimal());
@@ -46,12 +46,12 @@ public class TratamientoRepository {
                         tratamiento.idTratamiento = generatedKeys.getInt(1);
                     }
                 }
-                return true;
+                return tratamiento;
             }
-            return false;
+            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 
@@ -196,7 +196,7 @@ public class TratamientoRepository {
     }
 
     // Actualizar tratamiento
-    public boolean actualizar(Tratamiento tratamiento) {
+    public Tratamiento actualizar(Tratamiento tratamiento) {
         String sql = "UPDATE Tratamientos SET id_animal = ?, id_reporte = ?, id_usuario = ?, nombre_tratamiento = ?, fecha_fin = ?, id_medicamento = ?, observaciones = ? WHERE id_tratamiento = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, tratamiento.getIdAnimales().getIdAnimal());
@@ -208,13 +208,15 @@ public class TratamientoRepository {
             stmt.setString(7, tratamiento.getObservaciones());
             stmt.setInt(8, tratamiento.getIdTratamiento());
 
-            return stmt.executeUpdate() > 0;
+            if (stmt.executeUpdate() > 0) {
+                return tratamiento;
+            }
+            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
-
     // Eliminar tratamiento
     public boolean eliminar(int idTratamiento) {
         String sql = "DELETE FROM Tratamientos WHERE id_tratamiento = ?";

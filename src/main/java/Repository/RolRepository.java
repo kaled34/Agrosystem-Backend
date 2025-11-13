@@ -13,7 +13,7 @@ public class RolRepository {
     }
 
     // Crear un nuevo rol
-    public boolean crear(Rol rol) {
+    public Rol crear(Rol rol) {
         String sql = "INSERT INTO Rol (nombre_rol) VALUES (?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, rol.getNombre());
@@ -25,12 +25,12 @@ public class RolRepository {
                         rol.idRol = generatedKeys.getInt(1);
                     }
                 }
-                return true;
+                return rol;
             }
-            return false;
+            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 
@@ -74,16 +74,19 @@ public class RolRepository {
     }
 
     // Actualizar rol
-    public boolean actualizar(Rol rol) {
+    public Rol actualizar(Rol rol) {
         String sql = "UPDATE Rol SET nombre_rol = ? WHERE id_rol = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, rol.getNombre());
             stmt.setInt(2, rol.getIdRol());
 
-            return stmt.executeUpdate() > 0;
+            if (stmt.executeUpdate() > 0) {
+                return rol;
+            }
+            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 

@@ -17,11 +17,11 @@ public class PesoRepository {
     }
 
     // Crear un nuevo registro de peso
-    public boolean crear(Peso peso) {
+    public Peso crear(Peso peso) {
         String sql = "INSERT INTO PesoAnimal (id_animal, id_usuarioRegistro, fecha_medicion, peso_kg, condicion_corporal, observaciones) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, peso.getIdAnimal().getIdAnimal());
-            stmt.setInt(2, 1); // id_usuarioRegistro - deberías pasarlo como parámetro
+            stmt.setInt(2, 1);
             stmt.setDate(3, Date.valueOf(peso.getFechaMedicion()));
             stmt.setDouble(4, peso.getPesoActual());
             stmt.setString(5, peso.getCondicionCorporal());
@@ -35,14 +35,15 @@ public class PesoRepository {
                         peso.idPeso = generatedKeys.getInt(1);
                     }
                 }
-                return true;
+                return peso;
             }
-            return false;
+            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
+
 
     // Obtener peso por ID
     public Peso obtenerPorId(int idPeso) {
@@ -167,7 +168,7 @@ public class PesoRepository {
     }
 
     // Actualizar registro de peso
-    public boolean actualizar(Peso peso) {
+    public Peso actualizar(Peso peso) {
         String sql = "UPDATE PesoAnimal SET id_animal = ?, fecha_medicion = ?, peso_kg = ?, condicion_corporal = ?, observaciones = ? WHERE id_peso = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, peso.getIdAnimal().getIdAnimal());
@@ -177,10 +178,13 @@ public class PesoRepository {
             stmt.setString(5, peso.getObservaciones());
             stmt.setInt(6, peso.getIdPeso());
 
-            return stmt.executeUpdate() > 0;
+            if (stmt.executeUpdate() > 0) {
+                return peso;
+            }
+            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 

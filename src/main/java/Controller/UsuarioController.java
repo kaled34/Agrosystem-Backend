@@ -42,7 +42,7 @@ public class UsuarioController {
 
                 Map<String, Object> usuarioData = new HashMap<>();
                 usuarioData.put("idUsuario", usuario.getIdUsuario());
-                usuarioData.put("nombre", usuario.getNombre());
+                usuarioData.put("nombre", usuario.getNombreUsuario());
                 usuarioData.put("rol", usuario.getRol().getNombre());
 
                 response.put("usuario", usuarioData);

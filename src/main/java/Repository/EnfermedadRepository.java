@@ -19,7 +19,7 @@ public class EnfermedadRepository {
     }
 
     // Crear una nueva enfermedad
-    public boolean crear(Enfermedad enfermedad) {
+    public Enfermedad crear(Enfermedad enfermedad) {
         String sql = "INSERT INTO Enfermedad (nombre_enfermedad, tipo_enfermedad, sintomas, duracion_estimada, tratamientos_recomendados, id_medicamento, nivel_riesgo, modo_transmision, id_analisis) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, enfermedad.getNombreEnfermedad());
@@ -51,14 +51,15 @@ public class EnfermedadRepository {
                         enfermedad.idEnfermedad = generatedKeys.getInt(1);
                     }
                 }
-                return true;
+                return enfermedad;
             }
-            return false;
+            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
+
 
     // Obtener enfermedad por ID
     public Enfermedad obtenerPorId(int idEnfermedad) {
@@ -146,7 +147,7 @@ public class EnfermedadRepository {
     }
 
     // Actualizar enfermedad
-    public boolean actualizar(Enfermedad enfermedad) {
+    public Enfermedad actualizar(Enfermedad enfermedad) {
         String sql = "UPDATE Enfermedad SET nombre_enfermedad = ?, tipo_enfermedad = ?, sintomas = ?, duracion_estimada = ?, tratamientos_recomendados = ?, id_medicamento = ?, nivel_riesgo = ?, modo_transmision = ?, id_analisis = ? WHERE id_enfermedad = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, enfermedad.getNombreEnfermedad());
@@ -172,10 +173,13 @@ public class EnfermedadRepository {
 
             stmt.setInt(10, enfermedad.getIdEnfermedad());
 
-            return stmt.executeUpdate() > 0;
+            if (stmt.executeUpdate() > 0) {
+                return enfermedad;
+            }
+            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 

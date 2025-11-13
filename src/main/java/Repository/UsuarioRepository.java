@@ -15,7 +15,7 @@ public class UsuarioRepository {
         this.rolRepository = new RolRepository(connection);
     }
 
-    public boolean crear(Usuario usuario) {
+    public Usuario crear(Usuario usuario) {
         String sql = "INSERT INTO Usuario (nombre_usuario, contrasena, correo, telefono, id_rol, activo) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, usuario.getNombreUsuario());
@@ -33,12 +33,12 @@ public class UsuarioRepository {
                         usuario.idUsuario = generatedKeys.getInt(1);
                     }
                 }
-                return true;
+                return usuario;
             }
-            return false;
+            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 
@@ -144,7 +144,7 @@ public class UsuarioRepository {
         return usuarios;
     }
 
-    public boolean actualizar(Usuario usuario) {
+    public Usuario actualizar(Usuario usuario) {
         String sql = "UPDATE Usuario SET nombre_usuario = ?, contrasena = ?, correo = ?, telefono = ?, id_rol = ?, activo = ? WHERE id_usuario = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, usuario.getNombreUsuario());
@@ -155,10 +155,13 @@ public class UsuarioRepository {
             stmt.setBoolean(6, usuario.isActivo());
             stmt.setInt(7, usuario.getIdUsuario());
 
-            return stmt.executeUpdate() > 0;
+            if (stmt.executeUpdate() > 0) {
+                return usuario;
+            }
+            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 
