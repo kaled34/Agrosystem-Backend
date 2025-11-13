@@ -95,7 +95,7 @@ public class UsuarioController {
     public void buscarPorId(Context ctx) {
         try {
             int id = Integer.parseInt(ctx.pathParam("id"));
-            Usuario usuario = usuarioRepository.buscarPorId(id);
+            Usuario usuario = usuarioRepository.obtenerPorId(id);
 
             if (usuario != null) {
                 ctx.status(200).json(usuario);

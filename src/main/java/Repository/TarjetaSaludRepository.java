@@ -4,6 +4,7 @@ import Model.TarjetaSalud;
 import Model.Animales;
 import Model.Enfermedad;
 import Model.Tratamiento;
+import Config.ConfigDB;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,11 +15,16 @@ public class TarjetaSaludRepository {
     private EnfermedadRepository enfermedadRepository;
     private TratamientoRepository tratamientoRepository;
 
-    public TarjetaSaludRepository(Connection connection) {
-        this.connection = connection;
-        this.animalRepository = new AnimalesRepository(connection);
-        this.enfermedadRepository = new EnfermedadRepository(connection);
-        this.tratamientoRepository = new TratamientoRepository(connection);
+    // ✅ CORREGIDO: Constructor sin parámetros
+    public TarjetaSaludRepository() {
+        try {
+            this.connection = ConfigDB.getDataSource().getConnection();
+            this.animalRepository = new AnimalesRepository();
+            this.enfermedadRepository = new EnfermedadRepository();
+            this.tratamientoRepository = new TratamientoRepository();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // Crear una nueva tarjeta de salud

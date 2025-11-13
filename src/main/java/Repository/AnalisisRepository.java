@@ -1,6 +1,7 @@
 package Repository;
 
 import Model.Analisis;
+import Config.ConfigDB;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +9,13 @@ import java.util.List;
 public class AnalisisRepository {
     private Connection connection;
 
-    public AnalisisRepository(Connection connection) {
-        this.connection = connection;
+    // ✅ CORREGIDO: Constructor sin parámetros
+    public AnalisisRepository() {
+        try {
+            this.connection = ConfigDB.getDataSource().getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // Crear un nuevo análisis

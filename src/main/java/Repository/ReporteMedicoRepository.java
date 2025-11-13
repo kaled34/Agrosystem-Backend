@@ -3,6 +3,7 @@ package Repository;
 import Model.ReporteMedico;
 import Model.Animales;
 import Model.Usuario;
+import Config.ConfigDB;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -13,10 +14,15 @@ public class ReporteMedicoRepository {
     private AnimalesRepository animalRepository;
     private UsuarioRepository usuarioRepository;
 
-    public ReporteMedicoRepository(Connection connection) {
-        this.connection = connection;
-        this.animalRepository = new AnimalesRepository(connection);
-        this.usuarioRepository = new UsuarioRepository(connection);
+    // ✅ CORREGIDO: Constructor sin parámetros
+    public ReporteMedicoRepository() {
+        try {
+            this.connection = ConfigDB.getDataSource().getConnection();
+            this.animalRepository = new AnimalesRepository();
+            this.usuarioRepository = new UsuarioRepository();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // Crear un nuevo reporte médico

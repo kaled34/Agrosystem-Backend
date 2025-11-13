@@ -1,5 +1,6 @@
 package Repository;
 
+import Config.ConfigDB;
 import Model.Enfermedad;
 import Model.Medicamento;
 import Model.Analisis;
@@ -12,11 +13,16 @@ public class EnfermedadRepository {
     private MedicamentoRepository medicamentoRepository;
     private AnalisisRepository analisisRepository;
 
-    public EnfermedadRepository(Connection connection) {
-        this.connection = connection;
-        this.medicamentoRepository = new MedicamentoRepository(connection);
-        this.analisisRepository = new AnalisisRepository(connection);
+    public EnfermedadRepository() {
+        try {
+            this.connection = ConfigDB.getDataSource().getConnection();
+            this.medicamentoRepository = new MedicamentoRepository();
+            this.analisisRepository = new AnalisisRepository();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
+
 
     // Crear una nueva enfermedad
     public Enfermedad crear(Enfermedad enfermedad) {

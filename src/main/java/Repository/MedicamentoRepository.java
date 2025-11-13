@@ -1,6 +1,7 @@
 package Repository;
 
 import Model.Medicamento;
+import Config.ConfigDB;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,11 +9,16 @@ import java.util.List;
 public class MedicamentoRepository {
     private Connection connection;
 
-    public MedicamentoRepository(Connection connection) {
-        this.connection = connection;
+    // Constructor sin parámetros que obtiene la conexión del pool
+    public MedicamentoRepository() {
+        try {
+            this.connection = ConfigDB.getDataSource().getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
-    // Crear un nuevo medicamento
+    // ✅ CORREGIDO: Crear un nuevo medicamento - ahora retorna el medicamento
     public Medicamento crear(Medicamento medicamento) {
         String sql = "INSERT INTO Medicamentos (nombre_medicamento, solucion, dosis, caducidad, via_administracion, composicion, indicaciones, frecuencia_aplicacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -33,7 +39,7 @@ public class MedicamentoRepository {
                         medicamento.idMedicamento = generatedKeys.getInt(1);
                     }
                 }
-                return null;
+                return medicamento; // ✅ CORREGIDO: Retorna medicamento en lugar de null
             }
             return null;
         } catch (SQLException e) {

@@ -2,6 +2,7 @@ package Repository;
 
 import Model.Parto;
 import Model.Animales;
+import Config.ConfigDB;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -11,9 +12,14 @@ public class PartoRepository {
     private Connection connection;
     private AnimalesRepository animalRepository;
 
-    public PartoRepository(Connection connection) {
-        this.connection = connection;
-        this.animalRepository = new AnimalesRepository(connection);
+    // ✅ CORREGIDO: Constructor sin parámetros
+    public PartoRepository() {
+        try {
+            this.connection = ConfigDB.getDataSource().getConnection();
+            this.animalRepository = new AnimalesRepository();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // Crear un nuevo registro de parto

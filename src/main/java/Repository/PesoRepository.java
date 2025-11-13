@@ -2,6 +2,7 @@ package Repository;
 
 import Model.Peso;
 import Model.Animales;
+import Config.ConfigDB;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -11,9 +12,14 @@ public class PesoRepository {
     private Connection connection;
     private AnimalesRepository animalRepository;
 
-    public PesoRepository(Connection connection) {
-        this.connection = connection;
-        this.animalRepository = new AnimalesRepository(connection);
+    // ✅ CORREGIDO: Constructor sin parámetros
+    public PesoRepository() {
+        try {
+            this.connection = ConfigDB.getDataSource().getConnection();
+            this.animalRepository = new AnimalesRepository();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // Crear un nuevo registro de peso
@@ -43,7 +49,6 @@ public class PesoRepository {
             return null;
         }
     }
-
 
     // Obtener peso por ID
     public Peso obtenerPorId(int idPeso) {

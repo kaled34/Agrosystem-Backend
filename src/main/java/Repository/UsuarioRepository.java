@@ -2,6 +2,7 @@ package Repository;
 
 import Model.Usuario;
 import Model.Rol;
+import Config.ConfigDB;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +11,14 @@ public class UsuarioRepository {
     private Connection connection;
     private RolRepository rolRepository;
 
-    public UsuarioRepository(Connection connection) {
-        this.connection = connection;
-        this.rolRepository = new RolRepository(connection);
+    // ✅ CORREGIDO: Constructor sin parámetros
+    public UsuarioRepository() {
+        try {
+            this.connection = ConfigDB.getDataSource().getConnection();
+            this.rolRepository = new RolRepository();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public Usuario crear(Usuario usuario) {
@@ -187,11 +193,50 @@ public class UsuarioRepository {
         }
     }
 
-    public Usuario validarLogin(String nombreUsuario, String contrasena) {
+    // ✅ AGREGADO: Método validarCredenciales (nombre correcto para el Controller)
+    public Usuario validarCredenciales(String nombreUsuario, String contrasena) {
         Usuario usuario = obtenerPorNombreUsuario(nombreUsuario);
         if (usuario != null && usuario.getContrasena().equals(contrasena) && usuario.isActivo()) {
             return usuario;
         }
         return null;
+    }
+
+    // Mantener también validarLogin por compatibilidad
+    public Usuario validarLogin(String nombreUsuario, String contrasena) {
+        return validarCredenciales(nombreUsuario, contrasena);
+    }
+
+    // ✅ AGREGADO: Método buscarPorNombre (alias de obtenerPorNombreUsuario)
+    public Usuario buscarPorNombre(String nombre) {
+        return obtenerPorNombreUsuario(nombre);
+    }
+
+    // ✅ AGREGADO: Método buscarPorRol
+    public List<Usuario> buscarPorRol(Rol rol) {
+        List<Usuario> usuarios = new ArrayList<>();
+        String sql = "SELECT * FROM Usuario WHERE id_rol = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, rol.getIdRol());
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Rol rolCompleto = rolRepository.obtenerPorId(rs.getInt("id_rol"));
+
+                usuarios.add(new Usuario(
+                        rs.getInt("id_usuario"),
+                        rs.getString("nombre_usuario"),
+                        rs.getString("contrasena"),
+                        rs.getString("correo"),
+                        rs.getString("telefono"),
+                        rolCompleto,
+                        rs.getBoolean("activo")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return usuarios;
     }
 }

@@ -5,6 +5,7 @@ import Model.Animales;
 import Model.ReporteMedico;
 import Model.Usuario;
 import Model.Medicamento;
+import Config.ConfigDB;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,12 +18,17 @@ public class TratamientoRepository {
     private UsuarioRepository usuarioRepository;
     private MedicamentoRepository medicamentoRepository;
 
-    public TratamientoRepository(Connection connection) {
-        this.connection = connection;
-        this.animalRepository = new AnimalesRepository(connection);
-        this.reporteMedicoRepository = new ReporteMedicoRepository(connection);
-        this.usuarioRepository = new UsuarioRepository(connection);
-        this.medicamentoRepository = new MedicamentoRepository(connection);
+    // ✅ CORREGIDO: Constructor sin parámetros
+    public TratamientoRepository() {
+        try {
+            this.connection = ConfigDB.getDataSource().getConnection();
+            this.animalRepository = new AnimalesRepository();
+            this.reporteMedicoRepository = new ReporteMedicoRepository();
+            this.usuarioRepository = new UsuarioRepository();
+            this.medicamentoRepository = new MedicamentoRepository();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // Crear un nuevo tratamiento
@@ -217,6 +223,7 @@ public class TratamientoRepository {
             return null;
         }
     }
+
     // Eliminar tratamiento
     public boolean eliminar(int idTratamiento) {
         String sql = "DELETE FROM Tratamientos WHERE id_tratamiento = ?";

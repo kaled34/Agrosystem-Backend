@@ -1,6 +1,7 @@
 package Repository;
 
 import Model.Rol;
+import Config.ConfigDB;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +9,13 @@ import java.util.List;
 public class RolRepository {
     private Connection connection;
 
-    public RolRepository(Connection connection) {
-        this.connection = connection;
+    // Constructor sin parámetros que obtiene la conexión del pool
+    public RolRepository() {
+        try {
+            this.connection = ConfigDB.getDataSource().getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // Crear un nuevo rol
@@ -101,13 +107,23 @@ public class RolRepository {
             return false;
         }
     }
-    public String obtenerPorNombre(String nombre) {
-        String sql = "SELECT * FROM rol WHERE nombreRol";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)){
-                stmt.setString(1, nombre);
+
+    // ✅ CORREGIDO: Método obtenerPorNombre
+    public Rol obtenerPorNombre(String nombre) {
+        String sql = "SELECT * FROM Rol WHERE nombre_rol = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, nombre);
             ResultSet rs = stmt.executeQuery();
 
+            if (rs.next()) {
+                return new Rol(
+                        rs.getInt("id_rol"),
+                        rs.getString("nombre_rol")
+                );
             }
-
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return null;
     }
+}

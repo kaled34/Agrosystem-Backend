@@ -1,6 +1,7 @@
 package Repository;
 
 import Model.Animales;
+import Config.ConfigDB;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -9,8 +10,13 @@ import java.util.List;
 public class AnimalesRepository {
     private Connection connection;
 
-    public AnimalesRepository(Connection connection) {
-        this.connection = connection;
+    // ✅ CORREGIDO: Constructor sin parámetros
+    public AnimalesRepository() {
+        try {
+            this.connection = ConfigDB.getDataSource().getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public Animales crear(Animales animal) {
@@ -56,6 +62,7 @@ public class AnimalesRepository {
             return null;
         }
     }
+
     public Animales obtenerPorId(int idAnimal) {
         String sql = "SELECT * FROM Animal WHERE id_animal = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -190,6 +197,7 @@ public class AnimalesRepository {
             return null;
         }
     }
+
     public boolean eliminar(int idAnimal) {
         String sql = "DELETE FROM Animal WHERE id_animal = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
