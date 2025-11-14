@@ -12,10 +12,10 @@ public class AnimalesRoutes {
     }
 
     public void register(Javalin app) {
-        app.get("/animales", animalesController::obtenerTodosAnimales);
-        app.get("/animales/{id}", animalesController::buscarAnimalPorId);
-        app.post("/animales", animalesController::crearAnimal);
-        app.put("/animales/{id}", animalesController::actualizarAnimal);
-        app.delete("/animales/{id}", animalesController::eliminarAnimal);
+        app.get("/animal", animalesController::obtenerTodosAnimales);
+        app.get("/animal/{id}", animalesController::buscarAnimalPorId);
+        app.post("/animal", animalesController::crearAnimal);
+        app.put("/animal/{id}", animalesController::actualizarAnimal);
+        app.delete("/animal/{id}", animalesController::eliminarAnimal);
     }
 }

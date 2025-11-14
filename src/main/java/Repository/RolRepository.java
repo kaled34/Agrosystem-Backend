@@ -13,7 +13,7 @@ public class RolRepository {
     }
 
     public Rol crear(Rol rol) {
-        String sql = "INSERT INTO Rol (nombre_rol) VALUES (?)";
+        String sql = "INSERT INTO rol (nombre) VALUES (?)";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, rol.getNombre());
@@ -29,13 +29,14 @@ public class RolRepository {
             }
             return null;
         } catch (SQLException e) {
+            System.err.println("Error al crear rol: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
     }
 
     public Rol obtenerPorId(int idRol) {
-        String sql = "SELECT * FROM Rol WHERE id_rol = ?";
+        String sql = "SELECT * FROM rol WHERE idRol = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idRol);
@@ -43,11 +44,12 @@ public class RolRepository {
 
             if (rs.next()) {
                 return new Rol(
-                        rs.getInt("id_rol"),
-                        rs.getString("nombre_rol")
+                        rs.getInt("idRol"),
+                        rs.getString("nombre")
                 );
             }
         } catch (SQLException e) {
+            System.err.println("Error al obtener rol por ID: " + e.getMessage());
             e.printStackTrace();
         }
         return null;
@@ -55,7 +57,7 @@ public class RolRepository {
 
     public List<Rol> obtenerTodos() {
         List<Rol> roles = new ArrayList<>();
-        String sql = "SELECT * FROM Rol";
+        String sql = "SELECT * FROM rol";
 
         try (Connection connection = getConnection();
              Statement stmt = connection.createStatement();
@@ -63,18 +65,19 @@ public class RolRepository {
 
             while (rs.next()) {
                 roles.add(new Rol(
-                        rs.getInt("id_rol"),
-                        rs.getString("nombre_rol")
+                        rs.getInt("idRol"),
+                        rs.getString("nombre")
                 ));
             }
         } catch (SQLException e) {
+            System.err.println("Error al obtener todos los roles: " + e.getMessage());
             e.printStackTrace();
         }
         return roles;
     }
 
     public Rol actualizar(Rol rol) {
-        String sql = "UPDATE Rol SET nombre_rol = ? WHERE id_rol = ?";
+        String sql = "UPDATE rol SET nombre = ? WHERE idRol = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, rol.getNombre());
@@ -85,25 +88,27 @@ public class RolRepository {
             }
             return null;
         } catch (SQLException e) {
+            System.err.println("Error al actualizar rol: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
     }
 
     public boolean eliminar(int idRol) {
-        String sql = "DELETE FROM Rol WHERE id_rol = ?";
+        String sql = "DELETE FROM rol WHERE idRol = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idRol);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
+            System.err.println("Error al eliminar rol: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
 
     public Rol obtenerPorNombre(String nombre) {
-        String sql = "SELECT * FROM Rol WHERE nombre_rol = ?";
+        String sql = "SELECT * FROM rol WHERE nombre = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, nombre);
@@ -111,11 +116,12 @@ public class RolRepository {
 
             if (rs.next()) {
                 return new Rol(
-                        rs.getInt("id_rol"),
-                        rs.getString("nombre_rol")
+                        rs.getInt("idRol"),
+                        rs.getString("nombre")
                 );
             }
         } catch (SQLException e) {
+            System.err.println("Error al obtener rol por nombre: " + e.getMessage());
             e.printStackTrace();
         }
         return null;
