@@ -10,11 +10,11 @@ public class ConfigDB {
 
     public static DataSource getDataSource() {
         if (dataSource == null) {
-            String host = "DB_HOST";
-            String port = "DB_PORT";
-            String dbName = "DB_NAME";
-            String username = "DB_USER";
-            String password = "DB_PASS";
+            String host = "13.216.106.104 ";
+            String port = "3306";
+            String dbName = "agrova";
+            String username = "AgroSystem";
+            String password = "root";
             String url = "jdbc:mysql://" + host + ":" + port + "/" + dbName + "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
 
             HikariConfig config = new HikariConfig();
