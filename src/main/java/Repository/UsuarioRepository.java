@@ -14,7 +14,7 @@ public class UsuarioRepository {
     }
 
     public Usuario crear(Usuario usuario) {
-        String sql = "INSERT INTO Usuario (nombre_usuario, contrasena, correo, telefono, id_rol, activo) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO usuario (nombre_usuario, contrasena, correo, telefono, id_rol, activo) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, usuario.getNombreUsuario());
@@ -42,7 +42,7 @@ public class UsuarioRepository {
     }
 
     public Usuario obtenerPorId(int idUsuario) {
-        String sql = "SELECT * FROM Usuario WHERE id_usuario = ?";
+        String sql = "SELECT * FROM usuario WHERE id_usuario = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idUsuario);
@@ -69,7 +69,7 @@ public class UsuarioRepository {
     }
 
     public Usuario obtenerPorNombreUsuario(String nombreUsuario) {
-        String sql = "SELECT * FROM Usuario WHERE nombre_usuario = ?";
+        String sql = "SELECT * FROM usuario WHERE nombre_usuario = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, nombreUsuario);
@@ -97,7 +97,7 @@ public class UsuarioRepository {
 
     public List<Usuario> obtenerTodos() {
         List<Usuario> usuarios = new ArrayList<>();
-        String sql = "SELECT * FROM Usuario";
+        String sql = "SELECT * FROM usuario";
 
         try (Connection connection = getConnection();
              Statement stmt = connection.createStatement();
@@ -126,7 +126,7 @@ public class UsuarioRepository {
 
     public List<Usuario> obtenerActivos() {
         List<Usuario> usuarios = new ArrayList<>();
-        String sql = "SELECT * FROM Usuario WHERE activo = true";
+        String sql = "SELECT * FROM usuario WHERE activo = true";
 
         try (Connection connection = getConnection();
              Statement stmt = connection.createStatement();
@@ -154,7 +154,7 @@ public class UsuarioRepository {
     }
 
     public Usuario actualizar(Usuario usuario) {
-        String sql = "UPDATE Usuario SET nombre_usuario = ?, contrasena = ?, correo = ?, telefono = ?, id_rol = ?, activo = ? WHERE id_usuario = ?";
+        String sql = "UPDATE usuario SET nombre_usuario = ?, contrasena = ?, correo = ?, telefono = ?, id_rol = ?, activo = ? WHERE id_usuario = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, usuario.getNombreUsuario());
@@ -176,7 +176,7 @@ public class UsuarioRepository {
     }
 
     public boolean desactivar(int idUsuario) {
-        String sql = "UPDATE Usuario SET activo = false WHERE id_usuario = ?";
+        String sql = "UPDATE usuario SET activo = false WHERE id_usuario = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idUsuario);
@@ -188,7 +188,7 @@ public class UsuarioRepository {
     }
 
     public boolean eliminar(int idUsuario) {
-        String sql = "DELETE FROM Usuario WHERE id_usuario = ?";
+        String sql = "DELETE FROM usuario WHERE id_usuario = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idUsuario);
@@ -217,7 +217,7 @@ public class UsuarioRepository {
 
     public List<Usuario> buscarPorRol(Rol rol) {
         List<Usuario> usuarios = new ArrayList<>();
-        String sql = "SELECT * FROM Usuario WHERE id_rol = ?";
+        String sql = "SELECT * FROM usuario WHERE id_rol = ?";
 
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {

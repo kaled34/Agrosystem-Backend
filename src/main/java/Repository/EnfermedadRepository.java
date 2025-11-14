@@ -15,7 +15,7 @@ public class EnfermedadRepository {
     }
 
     public Enfermedad crear(Enfermedad enfermedad) {
-        String sql = "INSERT INTO Enfermedad (nombre_enfermedad, tipo_enfermedad, sintomas, duracion_estimada, tratamientos_recomendados, id_medicamento, nivel_riesgo, modo_transmision, id_analisis) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO enfermedad (nombre_enfermedad, tipo_enfermedad, sintomas, duracion_estimada, tratamientos_recomendados, id_medicamento, nivel_riesgo, modo_transmision, id_analisis) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, enfermedad.getNombreEnfermedad());
@@ -57,7 +57,7 @@ public class EnfermedadRepository {
     }
 
     public Enfermedad obtenerPorId(int idEnfermedad) {
-        String sql = "SELECT * FROM Enfermedad WHERE id_enfermedad = ?";
+        String sql = "SELECT * FROM enfermedad WHERE id_enfermedad = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idEnfermedad);
@@ -73,7 +73,7 @@ public class EnfermedadRepository {
     }
 
     public Enfermedad obtenerPorNombre(String nombreEnfermedad) {
-        String sql = "SELECT * FROM Enfermedad WHERE nombre_enfermedad = ?";
+        String sql = "SELECT * FROM enfermedad WHERE nombre_enfermedad = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, nombreEnfermedad);
@@ -90,7 +90,7 @@ public class EnfermedadRepository {
 
     public List<Enfermedad> obtenerTodas() {
         List<Enfermedad> enfermedades = new ArrayList<>();
-        String sql = "SELECT * FROM Enfermedad";
+        String sql = "SELECT * FROM enfermedad";
 
         try (Connection connection = getConnection();
              Statement stmt = connection.createStatement();
@@ -107,7 +107,7 @@ public class EnfermedadRepository {
 
     public List<Enfermedad> obtenerPorTipo(String tipoEnfermedad) {
         List<Enfermedad> enfermedades = new ArrayList<>();
-        String sql = "SELECT * FROM Enfermedad WHERE tipo_enfermedad = ?";
+        String sql = "SELECT * FROM enfermedad WHERE tipo_enfermedad = ?";
 
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -125,7 +125,7 @@ public class EnfermedadRepository {
 
     public List<Enfermedad> obtenerPorNivelRiesgo(String nivelRiesgo) {
         List<Enfermedad> enfermedades = new ArrayList<>();
-        String sql = "SELECT * FROM Enfermedad WHERE nivel_riesgo = ?";
+        String sql = "SELECT * FROM enfermedad WHERE nivel_riesgo = ?";
 
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -142,7 +142,7 @@ public class EnfermedadRepository {
     }
 
     public Enfermedad actualizar(Enfermedad enfermedad) {
-        String sql = "UPDATE Enfermedad SET nombre_enfermedad = ?, tipo_enfermedad = ?, sintomas = ?, duracion_estimada = ?, tratamientos_recomendados = ?, id_medicamento = ?, nivel_riesgo = ?, modo_transmision = ?, id_analisis = ? WHERE id_enfermedad = ?";
+        String sql = "UPDATE enfermedad SET nombre_enfermedad = ?, tipo_enfermedad = ?, sintomas = ?, duracion_estimada = ?, tratamientos_recomendados = ?, id_medicamento = ?, nivel_riesgo = ?, modo_transmision = ?, id_analisis = ? WHERE id_enfermedad = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, enfermedad.getNombreEnfermedad());
@@ -179,7 +179,7 @@ public class EnfermedadRepository {
     }
 
     public boolean eliminar(int idEnfermedad) {
-        String sql = "DELETE FROM Enfermedad WHERE id_enfermedad = ?";
+        String sql = "DELETE FROM enfermedad WHERE id_enfermedad = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idEnfermedad);

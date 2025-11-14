@@ -13,7 +13,7 @@ public class MedicamentoRepository {
     }
 
     public Medicamento crear(Medicamento medicamento) {
-        String sql = "INSERT INTO Medicamentos (nombre_medicamento, solucion, dosis, caducidad, via_administracion, composicion, indicaciones, frecuencia_aplicacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO medicamentos (nombre_medicamento, solucion, dosis, caducidad, via_administracion, composicion, indicaciones, frecuencia_aplicacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, medicamento.getNombreMedicamento());
@@ -43,7 +43,7 @@ public class MedicamentoRepository {
     }
 
     public Medicamento obtenerPorId(int idMedicamento) {
-        String sql = "SELECT * FROM Medicamentos WHERE id_medicamento = ?";
+        String sql = "SELECT * FROM medicamentos WHERE id_medicamento = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idMedicamento);
@@ -59,7 +59,7 @@ public class MedicamentoRepository {
     }
 
     public Medicamento obtenerPorNombre(String nombre) {
-        String sql = "SELECT * FROM Medicamentos WHERE nombre_medicamento = ?";
+        String sql = "SELECT * FROM medicamentos WHERE nombre_medicamento = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, nombre);
@@ -76,7 +76,7 @@ public class MedicamentoRepository {
 
     public List<Medicamento> obtenerTodos() {
         List<Medicamento> medicamentos = new ArrayList<>();
-        String sql = "SELECT * FROM Medicamentos";
+        String sql = "SELECT * FROM medicamentos";
 
         try (Connection connection = getConnection();
              Statement stmt = connection.createStatement();
@@ -93,7 +93,7 @@ public class MedicamentoRepository {
 
     public List<Medicamento> obtenerProximosACaducar(int diasAnticipacion) {
         List<Medicamento> medicamentos = new ArrayList<>();
-        String sql = "SELECT * FROM Medicamentos WHERE caducidad <= DATE_ADD(NOW(), INTERVAL ? DAY) AND caducidad >= NOW()";
+        String sql = "SELECT * FROM medicamentos WHERE caducidad <= DATE_ADD(NOW(), INTERVAL ? DAY) AND caducidad >= NOW()";
 
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -111,7 +111,7 @@ public class MedicamentoRepository {
 
     public List<Medicamento> obtenerCaducados() {
         List<Medicamento> medicamentos = new ArrayList<>();
-        String sql = "SELECT * FROM Medicamentos WHERE caducidad < NOW()";
+        String sql = "SELECT * FROM medicamentos WHERE caducidad < NOW()";
 
         try (Connection connection = getConnection();
              Statement stmt = connection.createStatement();
@@ -127,7 +127,7 @@ public class MedicamentoRepository {
     }
 
     public Medicamento actualizar(Medicamento medicamento) {
-        String sql = "UPDATE Medicamentos SET nombre_medicamento = ?, dosis = ?, caducidad = ?, composicion = ?, indicaciones = ?, frecuencia_aplicacion = ?, via_administracion = ? WHERE id_medicamento = ?";
+        String sql = "UPDATE medicamentos SET nombre_medicamento = ?, dosis = ?, caducidad = ?, composicion = ?, indicaciones = ?, frecuencia_aplicacion = ?, via_administracion = ? WHERE id_medicamento = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, medicamento.getNombreMedicamento());
@@ -150,7 +150,7 @@ public class MedicamentoRepository {
     }
 
     public boolean eliminar(int idMedicamento) {
-        String sql = "DELETE FROM Medicamentos WHERE id_medicamento = ?";
+        String sql = "DELETE FROM medicamentos WHERE id_medicamento = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idMedicamento);

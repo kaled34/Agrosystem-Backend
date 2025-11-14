@@ -13,7 +13,7 @@ public class AnimalesRepository {
     }
 
     public Animales crear(Animales animal) {
-        String sql = "INSERT INTO animales (nombre_animal, num_arete, rebaño, fecha_nacimiento, peso_inicial, caracteristica, edad, procedencia, sexo, id_padre, id_madre, id_propietario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO animal (nombre_animal, num_arete, rebaño, fecha_nacimiento, peso_inicial, caracteristica, edad, procedencia, sexo, id_padre, id_madre, id_propietario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, animal.getNombreAnimal());
@@ -59,7 +59,7 @@ public class AnimalesRepository {
     }
 
     public Animales obtenerPorId(int idAnimal) {
-        String sql = "SELECT * FROM animales WHERE id_animal = ?";
+        String sql = "SELECT * FROM animal WHERE id_animal = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idAnimal);
@@ -94,7 +94,7 @@ public class AnimalesRepository {
     }
 
     public Animales actualizar(Animales animal) {
-        String sql = "UPDATE animales SET nombre_animal = ?, num_arete = ?, rebaño = ?, caracteristica = ? WHERE id_animal = ?";
+        String sql = "UPDATE animal SET nombre_animal = ?, num_arete = ?, rebaño = ?, caracteristica = ? WHERE id_animal = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, animal.getNombreAnimal());
@@ -115,7 +115,7 @@ public class AnimalesRepository {
     }
 
     public boolean eliminar(int idAnimal) {
-        String sql = "DELETE FROM animales WHERE id_animal = ?";
+        String sql = "DELETE FROM animal WHERE id_animal = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idAnimal);
