@@ -1,9 +1,16 @@
 plugins {
     id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'org.Agrova'
 version = '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 repositories {
     mavenCentral()
@@ -12,15 +19,29 @@ repositories {
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
-    implementation('io.javalin:javalin:6.7.0')
-    implementation ('com.mysql:mysql-connector-j:9.3.0')
-    implementation ('com.zaxxer:HikariCP:5.0.1')
-    implementation("org.slf4j:slf4j-simple:2.0.16")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2")
-    implementation('com.fasterxml.jackson.core:jackson-databind:2.17.2')
+    implementation 'io.javalin:javalin:6.7.0'
+    implementation 'com.mysql:mysql-connector-j:9.3.0'
+    implementation 'com.zaxxer:HikariCP:5.0.1'
+    implementation 'org.slf4j:slf4j-simple:2.0.16'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.2'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+}
+
+application {
+    mainClass = 'org.Agrova.Main'  // Cambia esto si tu clase principal tiene otro nombre
+}
+
+shadowJar {
+    archiveBaseName.set('agrosystem-backend')
+    archiveVersion.set('1.0')
+    archiveClassifier.set('All')
+    mergeServiceFiles()
+    manifest {
+        attributes ["Main-Class"] = "org.Agrova.Main"
+    }
 }
 
 test {
