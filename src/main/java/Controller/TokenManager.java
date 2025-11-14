@@ -3,7 +3,6 @@ package Controller;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import javax.crypto.SecretKey;
-import org.conscrypt.ct.DigitallySigned;
 
 import java.util.Date;
 

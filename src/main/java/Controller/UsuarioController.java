@@ -10,35 +10,36 @@ import java.util.Map;
 
 public class UsuarioController {
     private final UsuarioRepository usuarioRepository;
+    private final TokenManager tokenManager;
 
-    public UsuarioController(UsuarioRepository usuarioRepository) {
+    public UsuarioController(UsuarioRepository usuarioRepository, TokenManager tokenManager) {
         this.usuarioRepository = usuarioRepository;
+        this.tokenManager = tokenManager;
     }
 
     public void login(Context ctx) {
         try {
-
             Map<String, String> body = ctx.bodyAsClass(Map.class);
             String nombre = body.get("nombre");
             String contrasena = body.get("contrasena");
 
-
             if (nombre == null || nombre.isEmpty() || contrasena == null || contrasena.isEmpty()) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "Nombre y contraseña son requeridos");
-                ctx.status(400).json(response);
+                ctx.status(400).json(Map.of(
+                        "success", false,
+                        "message", "Nombre y contraseña son requeridos"
+                ));
                 return;
             }
-
 
             Usuario usuario = usuarioRepository.validarCredenciales(nombre, contrasena);
 
             if (usuario != null) {
+                String token = tokenManager.issueToken(String.valueOf(usuario.getIdUsuario()));
 
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", true);
                 response.put("message", "Login exitoso");
+                response.put("token", token);
 
                 Map<String, Object> usuarioData = new HashMap<>();
                 usuarioData.put("idUsuario", usuario.getIdUsuario());
@@ -48,18 +49,16 @@ public class UsuarioController {
                 response.put("usuario", usuarioData);
                 ctx.status(200).json(response);
             } else {
-                // Credenciales incorrectas
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "Credenciales incorrectas");
-                ctx.status(401).json(response);
+                ctx.status(401).json(Map.of(
+                        "success", false,
+                        "message", "Credenciales incorrectas"
+                ));
             }
-
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Error en el servidor: " + e.getMessage());
-            ctx.status(500).json(response);
+            ctx.status(500).json(Map.of(
+                    "success", false,
+                    "message", "Error en el servidor: " + e.getMessage()
+            ));
         }
     }
 
@@ -74,10 +73,10 @@ public class UsuarioController {
             response.put("usuario", nuevoUsuario);
             ctx.status(201).json(response);
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Error al crear usuario: " + e.getMessage());
-            ctx.status(500).json(response);
+            ctx.status(500).json(Map.of(
+                    "success", false,
+                    "message", "Error al crear usuario: " + e.getMessage()
+            ));
         }
     }
 
@@ -85,10 +84,10 @@ public class UsuarioController {
         try {
             ctx.status(200).json(usuarioRepository.obtenerTodos());
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Error al obtener usuarios: " + e.getMessage());
-            ctx.status(500).json(response);
+            ctx.status(500).json(Map.of(
+                    "success", false,
+                    "message", "Error al obtener usuarios: " + e.getMessage()
+            ));
         }
     }
 
@@ -100,16 +99,16 @@ public class UsuarioController {
             if (usuario != null) {
                 ctx.status(200).json(usuario);
             } else {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "Usuario no encontrado");
-                ctx.status(404).json(response);
+                ctx.status(404).json(Map.of(
+                        "success", false,
+                        "message", "Usuario no encontrado"
+                ));
             }
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Error al buscar usuario: " + e.getMessage());
-            ctx.status(500).json(response);
+            ctx.status(500).json(Map.of(
+                    "success", false,
+                    "message", "Error al buscar usuario: " + e.getMessage()
+            ));
         }
     }
 
@@ -119,22 +118,22 @@ public class UsuarioController {
             Usuario usuarioActualizado = usuarioRepository.actualizar(usuario);
 
             if (usuarioActualizado != null) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", true);
-                response.put("message", "Usuario actualizado exitosamente");
-                response.put("usuario", usuarioActualizado);
-                ctx.status(200).json(response);
+                ctx.status(200).json(Map.of(
+                        "success", true,
+                        "message", "Usuario actualizado exitosamente",
+                        "usuario", usuarioActualizado
+                ));
             } else {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "Usuario no encontrado");
-                ctx.status(404).json(response);
+                ctx.status(404).json(Map.of(
+                        "success", false,
+                        "message", "Usuario no encontrado"
+                ));
             }
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Error al actualizar usuario: " + e.getMessage());
-            ctx.status(500).json(response);
+            ctx.status(500).json(Map.of(
+                    "success", false,
+                    "message", "Error al actualizar usuario: " + e.getMessage()
+            ));
         }
     }
 
@@ -144,21 +143,21 @@ public class UsuarioController {
             boolean eliminado = usuarioRepository.eliminar(id);
 
             if (eliminado) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", true);
-                response.put("message", "Usuario eliminado exitosamente");
-                ctx.status(200).json(response);
+                ctx.status(200).json(Map.of(
+                        "success", true,
+                        "message", "Usuario eliminado exitosamente"
+                ));
             } else {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "Usuario no encontrado");
-                ctx.status(404).json(response);
+                ctx.status(404).json(Map.of(
+                        "success", false,
+                        "message", "Usuario no encontrado"
+                ));
             }
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Error al eliminar usuario: " + e.getMessage());
-            ctx.status(500).json(response);
+            ctx.status(500).json(Map.of(
+                    "success", false,
+                    "message", "Error al eliminar usuario: " + e.getMessage()
+            ));
         }
     }
 
@@ -167,10 +166,10 @@ public class UsuarioController {
             String nombre = ctx.queryParam("nombre");
 
             if (nombre == null || nombre.trim().isEmpty()) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "El parámetro 'nombre' es requerido");
-                ctx.status(400).json(response);
+                ctx.status(400).json(Map.of(
+                        "success", false,
+                        "message", "El parámetro 'nombre' es requerido"
+                ));
                 return;
             }
 
@@ -179,16 +178,16 @@ public class UsuarioController {
             if (usuario != null) {
                 ctx.status(200).json(usuario);
             } else {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "No se encontró usuario con el nombre: " + nombre);
-                ctx.status(404).json(response);
+                ctx.status(404).json(Map.of(
+                        "success", false,
+                        "message", "No se encontró usuario con el nombre: " + nombre
+                ));
             }
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Error al buscar usuario por nombre: " + e.getMessage());
-            ctx.status(500).json(response);
+            ctx.status(500).json(Map.of(
+                    "success", false,
+                    "message", "Error al buscar usuario por nombre: " + e.getMessage()
+            ));
         }
     }
 
@@ -205,10 +204,10 @@ public class UsuarioController {
                 ctx.status(204).result("No se encontraron usuarios con el rol especificado");
             }
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Error al buscar usuarios por rol: " + e.getMessage());
-            ctx.status(500).json(response);
+            ctx.status(500).json(Map.of(
+                    "success", false,
+                    "message", "Error al buscar usuarios por rol: " + e.getMessage()
+            ));
         }
     }
 }

@@ -33,6 +33,9 @@ public class Main {
         PesoService pesoService = new PesoService(pesoRepository);
         RolService rolService = new RolService(rolRepository);
 
+        TokenManager tokenManager = new TokenManager();
+        JwtMiddleware jwtMiddleware = new JwtMiddleware(tokenManager);
+
         AnimalesController animalesController = new AnimalesController(animalesService);
         EnfermedadController enfermedadController = new EnfermedadController(enfermedadService);
         MedicamentoController medicamentoController = new MedicamentoController(medicamentoService);
@@ -41,7 +44,7 @@ public class Main {
         TarjetaSaludController tarjetaSaludController = new TarjetaSaludController(tarjetaSaludService);
         PesoController pesoController = new PesoController(pesoService);
         RolController rolController = new RolController(rolService);
-        UsuarioController usuarioController = new UsuarioController(usuarioRepository);
+        UsuarioController usuarioController = new UsuarioController(usuarioRepository, tokenManager);
 
         Javalin app = Javalin.create(config -> {
             config.bundledPlugins.enableCors(cors -> {
@@ -54,6 +57,7 @@ public class Main {
         System.out.println("🚀 Servidor iniciado en: http://localhost:7000");
         System.out.println("📡 API lista para recibir peticiones");
         System.out.println("🗄️  Conectado a MySQL");
+        System.out.println("🔐 Sistema JWT activado");
         System.out.println("================================");
 
         app.get("/", ctx -> {
@@ -61,17 +65,18 @@ public class Main {
                     "mensaje", "Bienvenido a la API de Agrova",
                     "version", "1.0",
                     "database", "MySQL",
+                    "auth", "JWT",
                     "endpoints", Map.of(
-                            "login", "/login",
+                            "login", "POST /login",
                             "usuarios", "/usuarios",
                             "animales", "/animales",
                             "enfermedades", "/enfermedades",
-                            "medicamentos", "/medicamentos",
+                            "medicamentos", "/medicamento",
                             "tratamientos", "/tratamientos",
                             "reportes", "/reportes",
                             "tarjetas", "/tarjetas",
                             "pesos", "/pesos",
-                            "roles", "/roles"
+                            "roles", "/rol"
                     )
             ));
         });
@@ -81,17 +86,9 @@ public class Main {
             ctx.json(Map.of("status", "ok", "message", "Test exitoso"));
         });
 
-        app.get("/test-usuarios", ctx -> {
-            System.out.println("Probando obtener usuarios...");
-            var usuarios = usuarioRepository.obtenerTodos();
-            System.out.println("Usuarios encontrados: " + usuarios.size());
-            ctx.json(Map.of(
-                    "total", usuarios.size(),
-                    "usuarios", usuarios
-            ));
-        });
-
         app.post("/login", usuarioController::login);
+
+        jwtMiddleware.apply(app);
 
         new UsuarioRoutes(usuarioController).register(app);
         new AnimalesRoutes(animalesController).register(app);
@@ -106,12 +103,15 @@ public class Main {
         System.out.println("✅ Todas las rutas registradas exitosamente");
         System.out.println("================================");
         System.out.println("Endpoints disponibles:");
-        System.out.println("  GET    http://localhost:7000/test");
-        System.out.println("  GET    http://localhost:7000/test-usuarios");
-        System.out.println("  POST   http://localhost:7000/login");
-        System.out.println("  GET    http://localhost:7000/usuarios");
-        System.out.println("  GET    http://localhost:7000/animales");
-        System.out.println("  GET    http://localhost:7000/roles");
+        System.out.println("  POST   http://localhost:7000/login (público)");
+        System.out.println("  GET    http://localhost:7000/test (público)");
+        System.out.println("  GET    http://localhost:7000/usuarios (protegido)");
+        System.out.println("  GET    http://localhost:7000/animales (protegido)");
+        System.out.println("  GET    http://localhost:7000/rol (protegido)");
+        System.out.println("================================");
+        System.out.println("Para acceder a rutas protegidas:");
+        System.out.println("  Authorization: Bearer <token>");
+        System.out.println("  Id-Usuario: <id>");
         System.out.println("================================");
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
