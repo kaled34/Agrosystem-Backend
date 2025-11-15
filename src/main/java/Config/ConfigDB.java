@@ -10,7 +10,7 @@ public class ConfigDB {
 
     public static DataSource getDataSource() {
         if (dataSource == null) {
-            String host = "13.216.106.104 ";
+            String host = "13.216.106.104 "; // aquí tiene la ip de la instancia si lo quieren local le ponen la ip del workbench
             String port = "3306";
             String dbName = "agrova";
             String username = "AgroSystem";
