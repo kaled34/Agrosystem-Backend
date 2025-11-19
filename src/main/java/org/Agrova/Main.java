@@ -15,6 +15,7 @@ public class Main {
         ConfigDB.getDataSource();
 
         AnimalesRepository animalesRepository = new AnimalesRepository();
+        EstadisticasRepository estadisticasRepository = new EstadisticasRepository();
         EnfermedadRepository enfermedadRepository = new EnfermedadRepository();
         MedicamentoRepository medicamentoRepository = new MedicamentoRepository();
         TratamientoRepository tratamientoRepository = new TratamientoRepository();
@@ -25,6 +26,7 @@ public class Main {
         UsuarioRepository usuarioRepository = new UsuarioRepository();
 
         AnimalesService animalesService = new AnimalesService(animalesRepository);
+        EstadisticasService estadisticasService = new EstadisticasService(estadisticasRepository);
         EnfermedadService enfermedadService = new EnfermedadService(enfermedadRepository);
         MedicamentoService medicamentoService = new MedicamentoService(medicamentoRepository);
         TratamientoService tratamientoService = new TratamientoService(tratamientoRepository);
@@ -38,6 +40,7 @@ public class Main {
 
         AnimalesController animalesController = new AnimalesController(animalesService);
         EnfermedadController enfermedadController = new EnfermedadController(enfermedadService);
+        EstadisticasController estadisticasController = new EstadisticasController(estadisticasService);
         MedicamentoController medicamentoController = new MedicamentoController(medicamentoService);
         TratamientoController tratamientoController = new TratamientoController(tratamientoService);
         ReporteMedicoController reporteMedicoController = new ReporteMedicoController(reporteMedicoService);
@@ -89,7 +92,7 @@ public class Main {
         app.post("/login", usuarioController::login);
 
         jwtMiddleware.apply(app);
-
+        new EstadisticasRoutes(estadisticasController).register(app);
         new UsuarioRoutes(usuarioController).register(app);
         new AnimalesRoutes(animalesController).register(app);
         new EnfermedadRoutes(enfermedadController).register(app);
@@ -108,6 +111,7 @@ public class Main {
         System.out.println("  GET    http://localhost:7000/usuarios (protegido)");
         System.out.println("  GET    http://localhost:7000/animales (protegido)");
         System.out.println("  GET    http://localhost:7000/rol (protegido)");
+        System.out.println("GET http://localhost:7000/estadisticas/animales");
         System.out.println("================================");
         System.out.println("Para acceder a rutas protegidas:");
         System.out.println("  Authorization: Bearer <token>");
