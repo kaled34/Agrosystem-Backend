@@ -21,13 +21,13 @@ public class Animales {
     public Animales() {
     }
 
-    public Animales(int idAnimal, String nombreAnimal,int numArete, String rebaño,LocalDate fechaNacimiento, double pesoInicial, String caracteristica, int edad, String procedencia, boolean sexo, int idPadre, int idMadre, int idPropiertario ) {
+    public Animales(int idAnimal, String nombreAnimal,int numArete, String rebaño, LocalDate fechaNacimiento, double pesoInicial, String caracteristica, int edad, String procedencia, boolean sexo, int idPadre, int idMadre, int idPropiertario ) {
 
         this.idAnimal = idAnimal;
         this.nombreAnimal = nombreAnimal;
         this.numArete = numArete;
         this.rebaño = rebaño;
-        this.fechaNacimiento = fechaNacimiento;
+        this.fechaNacimiento = LocalDate.ofEpochDay(LocalDate.now().getYear());
         this.pesoInicial = pesoInicial;
         this.caracteristica = caracteristica;
         this.edad = edad;
