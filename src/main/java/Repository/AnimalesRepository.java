@@ -13,7 +13,7 @@ public class AnimalesRepository {
     }
 
     public Animales crear(Animales animal) {
-        String sql = "INSERT INTO animal (nombre_animal, num_arete, rebaño, fecha_nacimiento, peso_inicial, caracteristica, edad, procedencia, sexo, id_padre, id_madre, id_propietario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO animal (nombre_animal, num_arete, rebaño, peso_inicial, caracteristica, edad, procedencia, sexo, id_padre, id_madre, id_propietario) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, animal.getNombreAnimal());
