@@ -19,12 +19,11 @@ public class AnimalesRepository {
             stmt.setString(1, animal.getNombreAnimal());
             stmt.setInt(2, animal.getNumArete());
             stmt.setString(3, animal.getRebaño());
-            stmt.setDate(4, Date.valueOf(animal.getFechaNacimiento()));
-            stmt.setDouble(5, animal.getPesoInicial());
-            stmt.setString(6, animal.getCaracteristica());
-            stmt.setInt(7, animal.getEdad());
-            stmt.setString(8, animal.getProcedencia());
-            stmt.setString(9, animal.isSexo() ? "M" : "F");
+            stmt.setDouble(4, animal.getPesoInicial());
+            stmt.setString(5, animal.getCaracteristica());
+            stmt.setInt(6, animal.getEdad());
+            stmt.setString(7 ,animal.getProcedencia());
+            stmt.setString(8, animal.isSexo() ? "M" : "F");
 
             if (animal.getIdPadre() > 0) {
                 stmt.setInt(10, animal.getIdPadre());
@@ -133,7 +132,6 @@ public class AnimalesRepository {
                 rs.getString("nombre_animal"),
                 rs.getInt("num_arete"),
                 rs.getString("rebaño"),
-                rs.getDate("fecha_nacimiento").toLocalDate(),
                 rs.getDouble("peso_inicial"),
                 rs.getString("caracteristica"),
                 rs.getInt("edad"),
