@@ -56,7 +56,6 @@ public class Main {
                 });
             });
         }).start(7000);
-
         System.out.println("🚀 Servidor iniciado en: http://localhost:7000");
         System.out.println("📡 API lista para recibir peticiones");
         System.out.println("🗄️  Conectado a MySQL");

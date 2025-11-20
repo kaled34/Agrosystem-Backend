@@ -40,7 +40,7 @@ public class JwtMiddleware {
         String authHeader = ctx.header("Authorization");
         String idUsuario = ctx.header("Id-Usuario");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer")) {
             ctx.status(401).json(Map.of(
                     "success", false,
                     "error", "Authorization header faltante o malformado"
@@ -70,7 +70,7 @@ public class JwtMiddleware {
     private void handleUnauthorized(UnauthorizedResponse e, Context ctx){
         ctx.status(401).json(Map.of(
                 "success", false,
-                "error", "Acceso no autorizado: " + e.getMessage()
+                /*"error", */"Acceso no autorizado: ", e.getMessage()
         ));
     }
 }
