@@ -90,7 +90,7 @@ public class Main {
 
         app.post("/login", usuarioController::login);
 
-        jwtMiddleware.apply(app);
+        //jwtMiddleware.apply(app);
         new EstadisticasRoutes(estadisticasController).register(app);
         new UsuarioRoutes(usuarioController).register(app);
         new AnimalesRoutes(animalesController).register(app);
