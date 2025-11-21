@@ -1,10 +1,16 @@
 package Controller;
 
+import Model.Usuario;
 import io.javalin.http.Context;
 import Model.ReporteMedico;
 import Service.ReporteMedicoService;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.time.LocalDate;
+import Repository.AnimalesRepository;
+import Repository.UsuarioRepository;
+import Model.Animales;
 
 public class ReporteMedicoController {
 
@@ -38,7 +44,34 @@ public class ReporteMedicoController {
 
     public void crearReporte(Context ctx) {
         try {
-            ReporteMedico nuevoReporte = ctx.bodyAsClass(ReporteMedico.class);
+            Map<String, Object> body = ctx.bodyAsClass(Map.class);
+
+            Map<String, Object> animalData = (Map<String, Object>) body.get("idAnimales");
+            Map<String, Object> usuarioData = (Map<String, Object>) body.get("idUsuario");
+
+            int idAnimal = ((Number) animalData.get("idAnimal")).intValue();
+            int idUsuario = ((Number) usuarioData.get("idUsuario")).intValue();
+
+            AnimalesRepository animalRepo = new AnimalesRepository();
+            UsuarioRepository usuarioRepo = new UsuarioRepository();
+
+            Animales animal = animalRepo.obtenerPorId(idAnimal);
+            Usuario usuario = usuarioRepo.obtenerPorId(idUsuario);
+
+            if (animal == null || usuario == null) {
+                ctx.status(400).result("Animal o Usuario no encontrado.");
+                return;
+            }
+
+            ReporteMedico nuevoReporte = new ReporteMedico();
+            nuevoReporte.idAnimales = animal;
+            nuevoReporte.idUsuario = usuario;
+            nuevoReporte.temperatura = ((Number) body.get("temperatura")).doubleValue();
+            nuevoReporte.condicionCorporal = (String) body.get("condicionCorporal");
+            nuevoReporte.frecuenciaRespiratoria = ((Number) body.get("frecuenciaRespiratoria")).intValue();
+            nuevoReporte.fecha = LocalDate.parse((String) body.get("fecha"));
+            nuevoReporte.diagnosticoPresuntivo = (String) body.get("diagnosticoPresuntivo");
+            nuevoReporte.diagnosticoDefinitivo = (String) body.get("diagnosticoDefinitivo");
 
             ReporteMedico reporteCreado = reporteMedicoService.crearReporte(nuevoReporte);
 
@@ -50,6 +83,7 @@ public class ReporteMedicoController {
             ctx.status(500).result("Error interno del servidor al procesar la solicitud: " + e.getMessage());
         }
     }
+
 
     public void actualizarReporte(Context ctx) {
         int id = ctx.pathParamAsClass("id", Integer.class).get();

@@ -13,9 +13,13 @@ public class AnimalesRepository {
     }
 
     public Animales crear(Animales animal) {
+        // SQL: 11 placeholders: nombre, arete, rebaño, peso, caracteristica, edad, procedencia, sexo, id_padre, id_madre, id_propietario
         String sql = "INSERT INTO animal (nombre_animal, num_arete, rebaño, peso_inicial, caracteristica, edad, procedencia, sexo, id_padre, id_madre, id_propietario) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            // Mapeo de Parámetros (Indices 1 a 8)
             stmt.setString(1, animal.getNombreAnimal());
             stmt.setInt(2, animal.getNumArete());
             stmt.setString(3, animal.getRebaño());
@@ -25,22 +29,27 @@ public class AnimalesRepository {
             stmt.setString(7 ,animal.getProcedencia());
             stmt.setString(8, animal.isSexo() ? "M" : "F");
 
-            if (animal.getIdPadre() > 0) {
-                stmt.setInt(10, animal.getIdPadre());
+            // Mapeo de Parámetros NULOS (Indices 9 y 10)
+            // ADAPTACIÓN: Usar <= 0 para asegurar que 0 o -1 se mapeen a NULL
+            if (animal.getIdPadre() <= 0) {
+                stmt.setNull(9, Types.INTEGER);
             } else {
+                stmt.setInt(9, animal.getIdPadre());
+            }
+
+            if (animal.getIdMadre() <= 0) {
                 stmt.setNull(10, Types.INTEGER);
-            }
-
-            if (animal.getIdMadre() > 0) {
-                stmt.setInt(11, animal.getIdMadre());
             } else {
-                stmt.setNull(11, Types.INTEGER);
+                stmt.setInt(10, animal.getIdMadre());
             }
 
-            stmt.setInt(12, animal.getIdPropiertario());
+            // Mapeo del ID Propietario (Indice 11)
+            // NOTA: idPropietario DEBE ser un valor válido que exista en la tabla 'usuario'.
+            stmt.setInt(11, animal.getIdPropiertario());
 
             int affectedRows = stmt.executeUpdate();
 
+            // Lógica para recuperar el ID generado
             if (affectedRows > 0) {
                 try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
@@ -49,6 +58,7 @@ public class AnimalesRepository {
                 }
                 return animal;
             }
+
             return null;
         } catch (SQLException e) {
             System.err.println("Error al crear animal: " + e.getMessage());
@@ -93,6 +103,7 @@ public class AnimalesRepository {
     }
 
     public Animales actualizar(Animales animal) {
+        // Nota: Esta query solo actualiza 4 campos, es posible que quieras añadir más.
         String sql = "UPDATE animal SET nombre_animal = ?, num_arete = ?, rebaño = ?, caracteristica = ? WHERE id_animal = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
