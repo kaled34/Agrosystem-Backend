@@ -2,6 +2,8 @@ package Model;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public class Medicamento {
 
     public int idMedicamento;
@@ -15,6 +17,11 @@ public class Medicamento {
     public  String frecuenciaAplicacion;
 
     public Medicamento(){
+    }
+
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public Medicamento(int idMedicamento) {
+        this.idMedicamento = idMedicamento;
     }
 
     public Medicamento(int idMedicamento, String nombreMedicamento, String solucion,float dosis, Date caducidad, String viaAdministracion,String composicion, String indicaciones, String frecuenciaAplicacion) {

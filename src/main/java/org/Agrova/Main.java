@@ -89,11 +89,11 @@ public class Main {
         });
 
         app.post("/login", usuarioController::login);
-
+        app.post("/register", usuarioController::crearUsuario );
         //jwtMiddleware.apply(app);
         new EstadisticasRoutes(estadisticasController).register(app);
         new UsuarioRoutes(usuarioController).register(app);
-        new AnimalesRoutes(animalesController).register(app);
+        new AnimalesRoutes(animalesController).register(app);  //rutas listas
         new EnfermedadRoutes(enfermedadController).register(app);
         new MedicamentoRoutes(medicamentoController).register(app);
         new TratamientoRoutes(tratamientoController).register(app);

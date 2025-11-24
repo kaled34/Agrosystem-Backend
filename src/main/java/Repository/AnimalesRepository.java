@@ -1,10 +1,17 @@
 package Repository;
 
-import Model.Animales;
-import Config.ConfigDB;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+
+import Config.ConfigDB;
+import Model.Animales;
 
 public class AnimalesRepository {
 
@@ -63,10 +70,10 @@ public class AnimalesRepository {
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idAnimal);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return mapearAnimal(rs);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapearAnimal(rs);
+                }
             }
         } catch (SQLException e) {
             System.err.println("Error al obtener animal por ID: " + e.getMessage());
@@ -94,34 +101,152 @@ public class AnimalesRepository {
     }
 
     public Animales actualizar(Animales animal) {
-        String sql = "UPDATE animal SET nombre_animal = ?, num_arete = ?, rebaño = ?, caracteristica = ? WHERE id_animal = ?";
-        try (Connection connection = getConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
+        String sql = "UPDATE animal SET nombre_animal = ?, num_arete = ?, rebaño = ?, fecha_nacimiento = ?, peso_inicial = ?, caracteristica = ?, edad = ?, procedencia = ?, sexo = ?, id_padre = ?, id_madre = ?, id_propietario = ? WHERE id_animal = ?";
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        try {
+            connection = getConnection();
+            // asegurar commit explícito para que otros conectores vean el cambio
+            boolean previousAuto = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+
+            stmt = connection.prepareStatement(sql);
             stmt.setString(1, animal.getNombreAnimal());
             stmt.setInt(2, animal.getNumArete());
             stmt.setString(3, animal.getRebaño());
-            stmt.setString(4, animal.getCaracteristica());
-            stmt.setInt(5, animal.getIdAnimal());
 
-            if (stmt.executeUpdate() > 0) {
-                return animal;
+            if (animal.getFechaNacimiento() != null) {
+                stmt.setDate(4, Date.valueOf(animal.getFechaNacimiento()));
+            } else {
+                stmt.setNull(4, Types.DATE);
+            }
+
+            stmt.setDouble(5, animal.getPesoInicial());
+            stmt.setString(6, animal.getCaracteristica());
+            stmt.setInt(7, animal.getEdad());
+            stmt.setString(8, animal.getProcedencia());
+
+            // sexo: almacenar 'M' para true, 'F' para false
+            if (animal.isSexo()) {
+                stmt.setString(9, "M");
+            } else {
+                stmt.setString(9, "F");
+            }
+
+            if (animal.getIdPadre() > 0) {
+                stmt.setInt(10, animal.getIdPadre());
+            } else {
+                stmt.setNull(10, Types.INTEGER);
+            }
+
+            if (animal.getIdMadre() > 0) {
+                stmt.setInt(11, animal.getIdMadre());
+            } else {
+                stmt.setNull(11, Types.INTEGER);
+            }
+
+            stmt.setInt(12, animal.getIdPropiertario());
+            stmt.setInt(13, animal.getIdAnimal());
+
+            // Log para depuración: mostrar el valor que se va a escribir en id_padre/id_madre
+            try {
+                System.out.println("[DEBUG] actualizar (repository) - idAnimal=" + animal.getIdAnimal()
+                        + ", idPadre(param)=" + animal.getIdPadre()
+                        + ", idMadre(param)=" + animal.getIdMadre());
+            } catch (Exception ignore) {
+                // no bloquear la operación por logging
+            }
+
+            int updated = stmt.executeUpdate();
+            System.out.println("[DEBUG] actualizar - executeUpdate affectedRows=" + updated);
+            if (updated > 0) {
+                try {
+                    connection.commit();
+                } catch (SQLException commitEx) {
+                    System.err.println("Error al commitear actualización: " + commitEx.getMessage());
+                }
+                // Devolver la fila actualizada desde la misma conexión para evitar abrir otra conexión
+                Animales refreshed = null;
+                String selectSql = "SELECT * FROM animal WHERE id_animal = ?";
+                try (PreparedStatement ps = connection.prepareStatement(selectSql)) {
+                    ps.setInt(1, animal.getIdAnimal());
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            refreshed = mapearAnimal(rs);
+                        }
+                    }
+                }
+                try {
+                    connection.setAutoCommit(previousAuto);
+                } catch (Exception ex) {
+                    // ignore
+                }
+                return refreshed;
+            }
+            try {
+                connection.setAutoCommit(previousAuto);
+            } catch (Exception ex) {
+                // ignore
             }
             return null;
         } catch (SQLException e) {
             System.err.println("Error al actualizar animal: " + e.getMessage());
             e.printStackTrace();
+            try {
+                if (connection != null) connection.rollback();
+            } catch (SQLException ex) {
+                System.err.println("Error al hacer rollback en actualizar: " + ex.getMessage());
+            }
             return null;
+        } finally {
+            try {
+                if (stmt != null) stmt.close();
+            } catch (SQLException ignore) {}
+            try {
+                if (connection != null) connection.close();
+            } catch (SQLException ignore) {}
         }
     }
 
     public boolean eliminar(int idAnimal) {
-        String sql = "DELETE FROM animal WHERE id_animal = ?";
-        try (Connection connection = getConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, idAnimal);
-            return stmt.executeUpdate() > 0;
+        String sqlDeleteAnimal = "DELETE FROM animal WHERE id_animal = ?";
+        String sqlDeletePesos = "DELETE FROM PesoAnimal WHERE id_animal = ?";
+
+        try (Connection connection = getConnection()) {
+            try {
+                connection.setAutoCommit(false);
+
+                // Eliminar registros dependientes en PesoAnimal primero
+                try (PreparedStatement delPesos = connection.prepareStatement(sqlDeletePesos)) {
+                    delPesos.setInt(1, idAnimal);
+                    delPesos.executeUpdate();
+                }
+
+                // Eliminar el animal
+                try (PreparedStatement stmt = connection.prepareStatement(sqlDeleteAnimal)) {
+                    stmt.setInt(1, idAnimal);
+                    int affected = stmt.executeUpdate();
+                    connection.commit();
+                    return affected > 0;
+                }
+            } catch (SQLException e) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    System.err.println("Error al hacer rollback: " + ex.getMessage());
+                }
+                System.err.println("Error al eliminar animal: " + e.getMessage());
+                e.printStackTrace();
+                return false;
+            } finally {
+                try {
+                    connection.setAutoCommit(true);
+                } catch (SQLException ex) {
+                    System.err.println("Error al restaurar autoCommit: " + ex.getMessage());
+                }
+            }
         } catch (SQLException e) {
-            System.err.println("Error al eliminar animal: " + e.getMessage());
+            System.err.println("Error al obtener conexión para eliminar animal: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

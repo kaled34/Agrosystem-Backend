@@ -27,13 +27,13 @@ public class Animales {
         this.nombreAnimal = nombreAnimal;
         this.numArete = numArete;
         this.rebaño = rebaño;
-        this.fechaNacimiento = LocalDate.ofEpochDay(LocalDate.now().getYear());
+        this.fechaNacimiento = fechaNacimiento;
         this.pesoInicial = pesoInicial;
         this.caracteristica = caracteristica;
         this.edad = edad;
         this.procedencia = procedencia;
         this.sexo = sexo;
-        this.idMadre = idPadre;
+        this.idPadre = idPadre;
         this.idMadre = idMadre;
         this.idPropiertario = idPropiertario;
     }
@@ -109,6 +109,22 @@ public class Animales {
     public void setCaracteristica(String caracteristica) {
         this.caracteristica = caracteristica;
     }
+
+    public void setFechaNacimiento(LocalDate fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
+
+    public void setPesoInicial(double pesoInicial) { this.pesoInicial = pesoInicial; }
+
+    public void setEdad(int edad) { this.edad = edad; }
+
+    public void setProcedencia(String procedencia) { this.procedencia = procedencia; }
+
+    public void setSexo(boolean sexo) { this.sexo = sexo; }
+
+    public void setIdPadre(int idPadre) { this.idPadre = idPadre; }
+
+    public void setIdMadre(int idMadre) { this.idMadre = idMadre; }
+
+    public void setIdPropiertario(int idPropiertario) { this.idPropiertario = idPropiertario; }
 
 }
 

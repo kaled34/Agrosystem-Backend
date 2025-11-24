@@ -1,11 +1,16 @@
 package Repository;
 
-import Model.Usuario;
-import Model.Rol;
-import Config.ConfigDB;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import Config.ConfigDB;
+import Model.Rol;
+import Model.Usuario;
 
 public class UsuarioRepository {
 
@@ -42,17 +47,17 @@ public class UsuarioRepository {
     }
 
     public Usuario obtenerPorId(int idUsuario) {
-        String sql = "SELECT * FROM usuario WHERE id_usuario = ?";
+        String sql = "SELECT u.*, r.nombre AS rol_nombre FROM usuario u LEFT JOIN rol r ON u.id_rol = r.idRol WHERE u.id_usuario = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idUsuario);
-            ResultSet rs = stmt.executeQuery();
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Rol rol = new Rol();
+                    rol.idRol = rs.getInt("id_rol");
+                    rol.setNombre(rs.getString("rol_nombre"));
 
-            if (rs.next()) {
-                RolRepository rolRepository = new RolRepository();
-                Rol rol = rolRepository.obtenerPorId(rs.getInt("id_rol"));
-
-                return new Usuario(
+                    return new Usuario(
                         rs.getInt("id_usuario"),
                         rs.getString("nombre_usuario"),
                         rs.getString("contrasena"),
@@ -60,7 +65,8 @@ public class UsuarioRepository {
                         rs.getString("telefono"),
                         rol,
                         rs.getBoolean("activo")
-                );
+                    );
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -69,25 +75,26 @@ public class UsuarioRepository {
     }
 
     public Usuario obtenerPorNombreUsuario(String nombreUsuario) {
-        String sql = "SELECT * FROM usuario WHERE nombre_usuario = ?";
+        String sql = "SELECT u.*, r.nombre AS rol_nombre FROM usuario u LEFT JOIN rol r ON u.id_rol = r.idRol WHERE u.nombre_usuario = ?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, nombreUsuario);
-            ResultSet rs = stmt.executeQuery();
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Rol rol = new Rol();
+                    rol.idRol = rs.getInt("id_rol");
+                    rol.setNombre(rs.getString("rol_nombre"));
 
-            if (rs.next()) {
-                RolRepository rolRepository = new RolRepository();
-                Rol rol = rolRepository.obtenerPorId(rs.getInt("id_rol"));
-
-                return new Usuario(
-                        rs.getInt("id_usuario"),
-                        rs.getString("nombre_usuario"),
-                        rs.getString("contrasena"),
-                        rs.getString("correo"),
-                        rs.getString("telefono"),
-                        rol,
-                        rs.getBoolean("activo")
-                );
+                    return new Usuario(
+                            rs.getInt("id_usuario"),
+                            rs.getString("nombre_usuario"),
+                            rs.getString("contrasena"),
+                            rs.getString("correo"),
+                            rs.getString("telefono"),
+                            rol,
+                            rs.getBoolean("activo")
+                    );
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -97,25 +104,25 @@ public class UsuarioRepository {
 
     public List<Usuario> obtenerTodos() {
         List<Usuario> usuarios = new ArrayList<>();
-        String sql = "SELECT * FROM usuario";
+        String sql = "SELECT u.*, r.nombre AS rol_nombre FROM usuario u LEFT JOIN rol r ON u.id_rol = r.idRol";
 
         try (Connection connection = getConnection();
              Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
-            RolRepository rolRepository = new RolRepository();
-
             while (rs.next()) {
-                Rol rol = rolRepository.obtenerPorId(rs.getInt("id_rol"));
+                Rol rol = new Rol();
+                rol.idRol = rs.getInt("id_rol");
+                rol.setNombre(rs.getString("rol_nombre"));
 
                 usuarios.add(new Usuario(
-                        rs.getInt("id_usuario"),
-                        rs.getString("nombre_usuario"),
-                        rs.getString("contrasena"),
-                        rs.getString("correo"),
-                        rs.getString("telefono"),
-                        rol,
-                        rs.getBoolean("activo")
+                    rs.getInt("id_usuario"),
+                    rs.getString("nombre_usuario"),
+                    rs.getString("contrasena"),
+                    rs.getString("correo"),
+                    rs.getString("telefono"),
+                    rol,
+                    rs.getBoolean("activo")
                 ));
             }
         } catch (SQLException e) {
@@ -126,16 +133,16 @@ public class UsuarioRepository {
 
     public List<Usuario> obtenerActivos() {
         List<Usuario> usuarios = new ArrayList<>();
-        String sql = "SELECT * FROM usuario WHERE activo = true";
+        String sql = "SELECT u.*, r.nombre AS rol_nombre FROM usuario u LEFT JOIN rol r ON u.id_rol = r.idRol WHERE u.activo = true";
 
         try (Connection connection = getConnection();
              Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
-            RolRepository rolRepository = new RolRepository();
-
             while (rs.next()) {
-                Rol rol = rolRepository.obtenerPorId(rs.getInt("id_rol"));
+                Rol rol = new Rol();
+                rol.idRol = rs.getInt("id_rol");
+                rol.setNombre(rs.getString("rol_nombre"));
 
                 usuarios.add(new Usuario(
                         rs.getInt("id_usuario"),
@@ -217,19 +224,18 @@ public class UsuarioRepository {
 
     public List<Usuario> buscarPorRol(Rol rol) {
         List<Usuario> usuarios = new ArrayList<>();
-        String sql = "SELECT * FROM usuario WHERE id_rol = ?";
+        String sql = "SELECT u.*, r.nombre AS rol_nombre FROM usuario u LEFT JOIN rol r ON u.id_rol = r.idRol WHERE u.id_rol = ?";
 
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, rol.getIdRol());
-            ResultSet rs = stmt.executeQuery();
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Rol rolCompleto = new Rol();
+                    rolCompleto.idRol = rs.getInt("id_rol");
+                    rolCompleto.setNombre(rs.getString("rol_nombre"));
 
-            RolRepository rolRepository = new RolRepository();
-
-            while (rs.next()) {
-                Rol rolCompleto = rolRepository.obtenerPorId(rs.getInt("id_rol"));
-
-                usuarios.add(new Usuario(
+                    usuarios.add(new Usuario(
                         rs.getInt("id_usuario"),
                         rs.getString("nombre_usuario"),
                         rs.getString("contrasena"),
@@ -237,7 +243,8 @@ public class UsuarioRepository {
                         rs.getString("telefono"),
                         rolCompleto,
                         rs.getBoolean("activo")
-                ));
+                    ));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

@@ -1,9 +1,12 @@
 package Service;
 
-import Model.Enfermedad;
-import Repository.EnfermedadRepository;
 import java.util.List;
 import java.util.Optional;
+
+import Model.Enfermedad;
+import Repository.AnalisisRepository;
+import Repository.EnfermedadRepository;
+import Repository.MedicamentoRepository;
 
 public class EnfermedadService {
 
@@ -24,6 +27,21 @@ public class EnfermedadService {
 
         if (enfermedad.duracionEstimada < 0) {
             throw new IllegalArgumentException("Los días de duración no pueden ser negativos.");
+        }
+
+        // Validate referenced entities exist to avoid FK constraint errors
+        AnalisisRepository analisisRepo = new AnalisisRepository();
+        if (enfermedad.getIdAnalisis() != null) {
+            if (analisisRepo.obtenerPorId(enfermedad.getIdAnalisis().getIdAnalisis()) == null) {
+                throw new IllegalArgumentException("Analisis no encontrado con id: " + enfermedad.getIdAnalisis().getIdAnalisis());
+            }
+        }
+
+        MedicamentoRepository medicamentoRepo = new MedicamentoRepository();
+        if (enfermedad.getIdMedicamento() != null) {
+            if (medicamentoRepo.obtenerPorId(enfermedad.getIdMedicamento().getIdMedicamento()) == null) {
+                throw new IllegalArgumentException("Medicamento no encontrado con id: " + enfermedad.getIdMedicamento().getIdMedicamento());
+            }
         }
 
         return enfermedadRepository.crear(enfermedad);

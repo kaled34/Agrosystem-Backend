@@ -1,10 +1,11 @@
 package Controller;
 
-import io.javalin.http.Context;
-import Model.Tratamiento;
-import Service.TratamientoService;
 import java.util.List;
 import java.util.Optional;
+
+import Model.Tratamiento;
+import Service.TratamientoService;
+import io.javalin.http.Context;
 
 public class TratamientoController {
 
@@ -42,7 +43,11 @@ public class TratamientoController {
 
             Tratamiento tratamientoCreado = tratamientoService.crearTratamiento(nuevoTratamiento);
 
-            ctx.status(201).json(tratamientoCreado);
+            if (tratamientoCreado != null) {
+                ctx.status(201).json(tratamientoCreado);
+            } else {
+                ctx.status(500).result("No se pudo crear el tratamiento.");
+            }
 
         } catch (IllegalArgumentException e) {
             ctx.status(400).result(e.getMessage());

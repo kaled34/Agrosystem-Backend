@@ -1,12 +1,18 @@
 package Repository;
 
-import Model.Peso;
-import Model.Animales;
-import Config.ConfigDB;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import Config.ConfigDB;
+import Model.Animales;
+import Model.Peso;
 
 public class PesoRepository {
 
@@ -47,10 +53,10 @@ public class PesoRepository {
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idPeso);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return mapearPeso(rs);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapearPeso(rs);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -82,10 +88,10 @@ public class PesoRepository {
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idAnimal);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                pesos.add(mapearPeso(rs));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    pesos.add(mapearPeso(rs));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -98,10 +104,10 @@ public class PesoRepository {
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idAnimal);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return mapearPeso(rs);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapearPeso(rs);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -117,10 +123,10 @@ public class PesoRepository {
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setDate(1, Date.valueOf(fechaInicio));
             stmt.setDate(2, Date.valueOf(fechaFin));
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                pesos.add(mapearPeso(rs));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    pesos.add(mapearPeso(rs));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -137,10 +143,10 @@ public class PesoRepository {
             stmt.setInt(1, idAnimal);
             stmt.setDate(2, Date.valueOf(fechaInicio));
             stmt.setDate(3, Date.valueOf(fechaFin));
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                pesos.add(mapearPeso(rs));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    pesos.add(mapearPeso(rs));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -153,10 +159,10 @@ public class PesoRepository {
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idAnimal);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getDouble("promedio");
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble("promedio");
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -198,19 +204,20 @@ public class PesoRepository {
     }
 
     private Peso mapearPeso(ResultSet rs) throws SQLException {
-        AnimalesRepository animalRepository = new AnimalesRepository();
-        Animales animal = animalRepository.obtenerPorId(rs.getInt("id_animal"));
+        // Avoid opening a new connection here. Create a lightweight animal with only ID.
+        Animales animal = new Animales();
+        animal.idAnimal = rs.getInt("id_animal");
 
-        double pesoNacimiento = animal != null ? animal.getPesoInicial() : 0.0;
+        double pesoNacimiento = 0.0; // peso inicial not loaded to avoid extra query
 
         return new Peso(
-                rs.getInt("id_peso"),
-                animal,
-                pesoNacimiento,
-                rs.getDouble("peso_kg"),
-                rs.getDate("fecha_medicion").toLocalDate(),
-                rs.getString("condicion_corporal"),
-                rs.getString("observaciones")
+            rs.getInt("id_peso"),
+            animal,
+            pesoNacimiento,
+            rs.getDouble("peso_kg"),
+            rs.getDate("fecha_medicion").toLocalDate(),
+            rs.getString("condicion_corporal"),
+            rs.getString("observaciones")
         );
     }
 }

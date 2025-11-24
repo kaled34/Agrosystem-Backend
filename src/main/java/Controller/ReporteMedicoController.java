@@ -1,10 +1,13 @@
 package Controller;
 
-import io.javalin.http.Context;
-import Model.ReporteMedico;
-import Service.ReporteMedicoService;
 import java.util.List;
 import java.util.Optional;
+
+import Model.ReporteMedico;
+import Model.Usuario;
+import Repository.UsuarioRepository;
+import Service.ReporteMedicoService;
+import io.javalin.http.Context;
 
 public class ReporteMedicoController {
 
@@ -40,9 +43,44 @@ public class ReporteMedicoController {
         try {
             ReporteMedico nuevoReporte = ctx.bodyAsClass(ReporteMedico.class);
 
+            // If a user id is provided via header, prefer that and validate the user exists
+            String idUsuarioHeader = ctx.header("Id-Usuario");
+            UsuarioRepository usuarioRepo = new UsuarioRepository();
+            if (idUsuarioHeader != null && !idUsuarioHeader.isBlank()) {
+                try {
+                    int idUsuario = Integer.parseInt(idUsuarioHeader.trim());
+                    Usuario usuario = usuarioRepo.obtenerPorId(idUsuario);
+                    if (usuario == null) {
+                        ctx.status(400).result("Usuario no encontrado con id: " + idUsuario);
+                        return;
+                    }
+                    nuevoReporte.setIdUsuario(usuario);
+                } catch (NumberFormatException ex) {
+                    ctx.status(400).result("Id-Usuario header inválido");
+                    return;
+                }
+            } else {
+                // If no header, require user info in body and validate it
+                if (nuevoReporte.getIdUsuario() == null || nuevoReporte.getIdUsuario().getIdUsuario() == 0) {
+                    ctx.status(400).result("Debe proveer Id-Usuario en el header o en el body (usuario.idUsuario).");
+                    return;
+                }
+                Usuario usuarioBody = usuarioRepo.obtenerPorId(nuevoReporte.getIdUsuario().getIdUsuario());
+                if (usuarioBody == null) {
+                    ctx.status(400).result("Usuario no encontrado con id: " + nuevoReporte.getIdUsuario().getIdUsuario());
+                    return;
+                }
+                // normalize to full Usuario object
+                nuevoReporte.setIdUsuario(usuarioBody);
+            }
+
             ReporteMedico reporteCreado = reporteMedicoService.crearReporte(nuevoReporte);
 
-            ctx.status(201).json(reporteCreado);
+            if (reporteCreado != null) {
+                ctx.status(201).json(reporteCreado);
+            } else {
+                ctx.status(500).result("No se pudo crear el reporte médico.");
+            }
 
         } catch (IllegalArgumentException e) {
             ctx.status(400).result(e.getMessage());

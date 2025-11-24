@@ -1,9 +1,10 @@
 package Service;
 
-import Model.Animales;
-import Repository.AnimalesRepository;
 import java.util.List;
 import java.util.Optional;
+
+import Model.Animales;
+import Repository.AnimalesRepository;
 
 public class AnimalesService {
 
@@ -35,8 +36,8 @@ public class AnimalesService {
         if (animalesRepository.obtenerPorId(animalActualizado.getIdAnimal()) == null) {
             return null;
         }
-        animalesRepository.actualizar(animalActualizado);
-        return animalActualizado;
+        Animales resultado = animalesRepository.actualizar(animalActualizado);
+        return resultado;
     }
 
     public boolean eliminarAnimal(int id) {

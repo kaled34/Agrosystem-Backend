@@ -1,10 +1,16 @@
 package Repository;
 
-import Model.Medicamento;
-import Config.ConfigDB;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+
+import Config.ConfigDB;
+import Model.Medicamento;
 
 public class MedicamentoRepository {
 
@@ -47,10 +53,10 @@ public class MedicamentoRepository {
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idMedicamento);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return mapearMedicamento(rs);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapearMedicamento(rs);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -63,10 +69,10 @@ public class MedicamentoRepository {
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, nombre);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return mapearMedicamento(rs);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapearMedicamento(rs);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -98,10 +104,10 @@ public class MedicamentoRepository {
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, diasAnticipacion);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                medicamentos.add(mapearMedicamento(rs));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    medicamentos.add(mapearMedicamento(rs));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

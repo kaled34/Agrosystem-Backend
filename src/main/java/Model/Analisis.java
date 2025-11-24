@@ -1,11 +1,18 @@
 package Model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public class Analisis {
     public int idAnalisis;
     public String tipoAnalisis;
     public  String resultado;
     public  String interpretacion;
     public Analisis(){}
+
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public Analisis(int idAnalisis) {
+        this.idAnalisis = idAnalisis;
+    }
 
     public Analisis( int idAnalisis, String tipoAnalisis, String resultado, String interpretacion){
         this.idAnalisis = idAnalisis;

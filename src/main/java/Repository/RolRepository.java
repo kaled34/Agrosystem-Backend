@@ -1,10 +1,15 @@
 package Repository;
 
-import Model.Rol;
-import Config.ConfigDB;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import Config.ConfigDB;
+import Model.Rol;
 
 public class RolRepository {
 
@@ -40,13 +45,13 @@ public class RolRepository {
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idRol);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return new Rol(
-                        rs.getInt("idRol"),
-                        rs.getString("nombre")
-                );
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Rol(
+                            rs.getInt("idRol"),
+                            rs.getString("nombre")
+                    );
+                }
             }
         } catch (SQLException e) {
             System.err.println("Error al obtener rol por ID: " + e.getMessage());
@@ -112,13 +117,13 @@ public class RolRepository {
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, nombre);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return new Rol(
-                        rs.getInt("idRol"),
-                        rs.getString("nombre")
-                );
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Rol(
+                            rs.getInt("idRol"),
+                            rs.getString("nombre")
+                    );
+                }
             }
         } catch (SQLException e) {
             System.err.println("Error al obtener rol por nombre: " + e.getMessage());

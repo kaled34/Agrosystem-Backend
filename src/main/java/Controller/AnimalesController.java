@@ -1,10 +1,11 @@
 package Controller;
 
-import io.javalin.http.Context;
-import Model.Animales;
-import Service.AnimalesService;
 import java.util.List;
 import java.util.Optional;
+
+import Model.Animales;
+import Service.AnimalesService;
+import io.javalin.http.Context;
 
 
 public class AnimalesController {
@@ -62,6 +63,11 @@ public class AnimalesController {
 
             Animales animalActualizado = ctx.bodyAsClass(Animales.class);
 
+            // Log para depuración: mostrar campos relevantes recibidos
+            System.out.println("[DEBUG] actualizarAnimal - body recibidO: idAnimal=" + animalActualizado.getIdAnimal()
+                    + ", idPadre=" + animalActualizado.getIdPadre()
+                    + ", idMadre=" + animalActualizado.getIdMadre()
+                    + ", nombre=" + animalActualizado.getNombreAnimal());
 
             if (animalActualizado.getIdAnimal() != id) {
                 ctx.status(400).result("El ID del cuerpo no coincide con el ID de la ruta.");
