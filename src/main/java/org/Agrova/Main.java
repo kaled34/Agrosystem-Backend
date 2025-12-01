@@ -49,6 +49,11 @@ public class Main {
         RolController rolController = new RolController(rolService);
         UsuarioController usuarioController = new UsuarioController(usuarioRepository, tokenManager);
 
+        EstadisticasTratamientoRepository estadisticasTratamientoRepository = new EstadisticasTratamientoRepository();
+        EstadisticasTratamientoService estadisticasTratamientoService = new EstadisticasTratamientoService(estadisticasTratamientoRepository);
+        EstadisticasTratamientoController estadisticasTratamientoController = new EstadisticasTratamientoController(estadisticasTratamientoService);
+        EstadisticasTratamientoRoutes estadisticasTratamientoRoutes = new EstadisticasTratamientoRoutes(estadisticasTratamientoController);
+
         Javalin app = Javalin.create(config -> {
             config.bundledPlugins.enableCors(cors -> {
                 cors.addRule(it -> {
@@ -101,6 +106,8 @@ public class Main {
         new TarjetaSaludRoutes(tarjetaSaludController).register(app);
         new PesoRoutes(pesoController).register(app);
         new RolRoutes(rolController).register(app);
+        new EstadisticasTratamientoRoutes(estadisticasTratamientoController).register(app);
+
 
         System.out.println("✅ Todas las rutas registradas exitosamente");
         System.out.println("================================");

@@ -1,10 +1,9 @@
 package Service;
 
-import java.util.List;
-import java.util.Optional;
-
 import Model.Animales;
 import Repository.AnimalesRepository;
+import java.util.List;
+import java.util.Optional;
 
 public class AnimalesService {
 
@@ -17,6 +16,14 @@ public class AnimalesService {
     public Animales crearAnimal(Animales animal) {
         if (animal.getNombreAnimal() == null) {
             throw new IllegalArgumentException("El nombre del animal no puede ser nulo.");
+        }
+
+        if (animalesRepository.existePorNombre(animal.getNombreAnimal())) {
+            throw new IllegalArgumentException("Ya existe un animal con ese nombre.");
+        }
+
+        if (animalesRepository.existePorNumArete(animal.getNumArete())) {
+            throw new IllegalArgumentException("Ya existe un animal con ese número de arete.");
         }
 
         animalesRepository.crear(animal);
@@ -36,8 +43,19 @@ public class AnimalesService {
         if (animalesRepository.obtenerPorId(animalActualizado.getIdAnimal()) == null) {
             return null;
         }
-        Animales resultado = animalesRepository.actualizar(animalActualizado);
-        return resultado;
+
+        Animales existentePorNombre = animalesRepository.obtenerPorNombre(animalActualizado.getNombreAnimal());
+        if (existentePorNombre != null && existentePorNombre.getIdAnimal() != animalActualizado.getIdAnimal()) {
+            throw new IllegalArgumentException("Ya existe otro animal con ese nombre.");
+        }
+
+        Animales existentePorArete = animalesRepository.obtenerPorNumArete(animalActualizado.getNumArete());
+        if (existentePorArete != null && existentePorArete.getIdAnimal() != animalActualizado.getIdAnimal()) {
+            throw new IllegalArgumentException("Ya existe otro animal con ese número de arete.");
+        }
+
+        animalesRepository.actualizar(animalActualizado);
+        return animalActualizado;
     }
 
     public boolean eliminarAnimal(int id) {

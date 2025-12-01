@@ -106,7 +106,6 @@ public class AnimalesRepository {
         PreparedStatement stmt = null;
         try {
             connection = getConnection();
-            // asegurar commit explícito para que otros conectores vean el cambio
             boolean previousAuto = connection.getAutoCommit();
             connection.setAutoCommit(false);
 
@@ -126,7 +125,6 @@ public class AnimalesRepository {
             stmt.setInt(7, animal.getEdad());
             stmt.setString(8, animal.getProcedencia());
 
-            // sexo: almacenar 'M' para true, 'F' para false
             if (animal.isSexo()) {
                 stmt.setString(9, "M");
             } else {
@@ -148,13 +146,11 @@ public class AnimalesRepository {
             stmt.setInt(12, animal.getIdPropiertario());
             stmt.setInt(13, animal.getIdAnimal());
 
-            // Log para depuración: mostrar el valor que se va a escribir en id_padre/id_madre
             try {
                 System.out.println("[DEBUG] actualizar (repository) - idAnimal=" + animal.getIdAnimal()
                         + ", idPadre(param)=" + animal.getIdPadre()
                         + ", idMadre(param)=" + animal.getIdMadre());
             } catch (Exception ignore) {
-                // no bloquear la operación por logging
             }
 
             int updated = stmt.executeUpdate();
@@ -165,7 +161,6 @@ public class AnimalesRepository {
                 } catch (SQLException commitEx) {
                     System.err.println("Error al commitear actualización: " + commitEx.getMessage());
                 }
-                // Devolver la fila actualizada desde la misma conexión para evitar abrir otra conexión
                 Animales refreshed = null;
                 String selectSql = "SELECT * FROM animal WHERE id_animal = ?";
                 try (PreparedStatement ps = connection.prepareStatement(selectSql)) {
@@ -179,14 +174,12 @@ public class AnimalesRepository {
                 try {
                     connection.setAutoCommit(previousAuto);
                 } catch (Exception ex) {
-                    // ignore
                 }
                 return refreshed;
             }
             try {
                 connection.setAutoCommit(previousAuto);
             } catch (Exception ex) {
-                // ignore
             }
             return null;
         } catch (SQLException e) {
@@ -216,13 +209,11 @@ public class AnimalesRepository {
             try {
                 connection.setAutoCommit(false);
 
-                // Eliminar registros dependientes en PesoAnimal primero
                 try (PreparedStatement delPesos = connection.prepareStatement(sqlDeletePesos)) {
                     delPesos.setInt(1, idAnimal);
                     delPesos.executeUpdate();
                 }
 
-                // Eliminar el animal
                 try (PreparedStatement stmt = connection.prepareStatement(sqlDeleteAnimal)) {
                     stmt.setInt(1, idAnimal);
                     int affected = stmt.executeUpdate();
@@ -250,6 +241,74 @@ public class AnimalesRepository {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public boolean existePorNombre(String nombre) {
+        String sql = "SELECT COUNT(*) FROM animal WHERE nombre_animal = ?";
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, nombre);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al verificar nombre: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean existePorNumArete(int numArete) {
+        String sql = "SELECT COUNT(*) FROM animal WHERE num_arete = ?";
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, numArete);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al verificar num_arete: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public Animales obtenerPorNombre(String nombre) {
+        String sql = "SELECT * FROM animal WHERE nombre_animal = ?";
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, nombre);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapearAnimal(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener por nombre: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Animales obtenerPorNumArete(int numArete) {
+        String sql = "SELECT * FROM animal WHERE num_arete = ?";
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, numArete);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapearAnimal(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener por num_arete: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private Animales mapearAnimal(ResultSet rs) throws SQLException {
