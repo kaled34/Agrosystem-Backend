@@ -5,33 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c7bbeefd-e778-476d-b5cb-4440817c41c6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/Controller/EstadisticasTratamientoController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/Model/EstadisticasTratamiento.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/Repository/EstadisticasTratamientoRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/Routes/EstadisticasTratamientoRoutes.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/Service/EstadisticasTratamientoService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/Repository/AnimalesRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/Repository/AnimalesRepository.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/Service/AnimalesService.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/Service/AnimalesService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/org/Agrova/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/org/Agrova/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/AnalisisRepository.class.uniqueId13" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/AnimalesRepository.class.uniqueId8" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/ConfigDB.class.uniqueId3" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/EnfermedadRepository.class.uniqueId6" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/EstadisticasRepository.class.uniqueId5" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/Main.class.uniqueId9" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/MedicamentoRepository.class.uniqueId0" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/PartoRepository.class.uniqueId7" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/PesoRepository.class.uniqueId10" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/ReporteMedicoRepository.class.uniqueId11" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/RolRepository.class.uniqueId12" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/TarjetaSaludRepository.class.uniqueId2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/TratamientoRepository.class.uniqueId1" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/UsuarioRepository.class.uniqueId4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Repository/AnimalesRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Repository/AnimalesRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Service/AnimalesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Service/AnimalesService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/Agrova/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/Agrova/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Routes/EstadisticasTratamientoRoutes.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Routes/EstadisticasTratamientoRoutes.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,17 +36,18 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Gradle.BACKENDAGROSYSTEM [:org.Agrova.Main.main()].executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/kaled/Downloads/BACKENDAGROSYSTEM/BACKENDAGROSYSTEM/build.gradle&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Gradle.BACKENDAGROSYSTEM [:org.Agrova.Main.main()].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/Users/kaled/Downloads/BACKENDAGROSYSTEM/BACKENDAGROSYSTEM/build.gradle",
+    "settings.editor.selected.configurable": "preferences.keymap"
   }
-}</component>
+}]]></component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="c7bbeefd-e778-476d-b5cb-4440817c41c6" name="Changes" comment="" />

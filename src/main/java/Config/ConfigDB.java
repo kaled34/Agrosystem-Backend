@@ -11,10 +11,10 @@ public class ConfigDB {
 
     public static DataSource getDataSource() {
         if (dataSource == null) {
-            String host = "13.216.106.104"; //"13.216.106.104"; // aquí tiene la ip de la instancia si lo quieren local le ponen la ip del workbench 127.0.0.1 13.216.106.104
+            String host = "127.0.0.1"; //"13.216.106.104"; // aquí tiene la ip de la instancia si lo quieren local le ponen la ip del workbench 127.0.0.1 13.216.106.104
             String port = "3306";
             String dbName = "agrova";
-            String username = "AgroSystem"; //"AgroSystem";  // para instancia es AgroSystem
+            String username = "root"; //"AgroSystem";  // para instancia es AgroSystem
             String password =  "root";//"root";
             String url = "jdbc:mysql://" + host + ":" + port + "/" + dbName + "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
 

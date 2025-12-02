@@ -12,6 +12,6 @@ public class EstadisticasTratamientoRoutes {
     }
 
     public void register(Javalin app) {
-        app.get("/api/estadisticas/tratamiento-vs-sanos", estadisticasTratamientoController::obtenerEstadisticaTratamientoVsSanos);
+        app.get("/estadisticas/tratamiento-vs-sanos", estadisticasTratamientoController::obtenerEstadisticaTratamientoVsSanos);
     }
 }
