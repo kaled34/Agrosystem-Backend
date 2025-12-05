@@ -7,18 +7,52 @@ import Model.Animales;
 import Service.AnimalesService;
 import io.javalin.http.Context;
 
-
+/**
+ * Controlador REST para gestionar las operaciones HTTP relacionadas con
+ * animales.
+ * Maneja las peticiones del frontend y coordina con el servicio de animales
+ * para ejecutar la lógica de negocio, retornando respuestas JSON.
+ * 
+ * <p>
+ * Endpoints disponibles:
+ * </p>
+ * <ul>
+ * <li>GET /animales - Obtiene todos los animales</li>
+ * <li>GET /animales/:id - Obtiene un animal por ID</li>
+ * <li>POST /animales - Crea un nuevo animal</li>
+ * <li>PUT /animales/:id - Actualiza un animal existente</li>
+ * <li>DELETE /animales/:id - Elimina un animal</li>
+ * </ul>
+ * 
+ * @author Agrosystem Team
+ * @version 1.0
+ */
 public class AnimalesController {
 
     private final AnimalesService animalesService;
 
-
-
+    /**
+     * Constructor que inyecta el servicio de animales.
+     * 
+     * @param animalesService Servicio para lógica de negocio de animales
+     */
     public AnimalesController(AnimalesService animalesService) {
         this.animalesService = animalesService;
-
     }
 
+    /**
+     * Maneja la petición GET para obtener todos los animales.
+     * 
+     * @param ctx Contexto de Javalin con información de la petición y respuesta
+     * 
+     *            <p>
+     *            Respuestas:
+     *            </p>
+     *            <ul>
+     *            <li>200 OK - Retorna lista de animales en JSON</li>
+     *            <li>204 No Content - Si no hay animales registrados</li>
+     *            </ul>
+     */
     public void obtenerTodosAnimales(Context ctx) {
         List<Animales> animales = animalesService.obtenerTodos();
 
@@ -29,6 +63,19 @@ public class AnimalesController {
         }
     }
 
+    /**
+     * Maneja la petición GET para buscar un animal por su ID.
+     * 
+     * @param ctx Contexto de Javalin (path parameter "id" requerido)
+     * 
+     *            <p>
+     *            Respuestas:
+     *            </p>
+     *            <ul>
+     *            <li>200 OK - Retorna el animal encontrado en JSON</li>
+     *            <li>404 Not Found - Si el animal no existe</li>
+     *            </ul>
+     */
     public void buscarAnimalPorId(Context ctx) {
         int id = ctx.pathParamAsClass("id", Integer.class).get();
 
@@ -41,6 +88,34 @@ public class AnimalesController {
         }
     }
 
+    /**
+     * Maneja la petición POST para crear un nuevo animal.
+     * 
+     * @param ctx Contexto de Javalin (body JSON con datos del animal requerido)
+     * 
+     *            <p>
+     *            Ejemplo de body JSON:
+     *            </p>
+     * 
+     *            <pre>
+     * {
+     *   "nombreAnimal": "Vaca Lola",
+     *   "numArete": 12345,
+     *   "rebaño": "Rebaño A",
+     *   "fechaNacimiento": "2023-01-15",
+     *   "pesoInicial": 450.5
+     * }
+     *            </pre>
+     * 
+     *            <p>
+     *            Respuestas:
+     *            </p>
+     *            <ul>
+     *            <li>201 Created - Animal creado exitosamente</li>
+     *            <li>400 Bad Request - Datos inválidos o duplicados</li>
+     *            <li>500 Internal Server Error - Error del servidor</li>
+     *            </ul>
+     */
     public void crearAnimal(Context ctx) {
         try {
             Animales nuevoAnimal = ctx.bodyAsClass(Animales.class);
@@ -56,6 +131,21 @@ public class AnimalesController {
         }
     }
 
+    /**
+     * Maneja la petición PUT para actualizar un animal existente.
+     * 
+     * @param ctx Contexto de Javalin (path parameter "id" y body JSON requeridos)
+     * 
+     *            <p>
+     *            Respuestas:
+     *            </p>
+     *            <ul>
+     *            <li>200 OK - Animal actualizado exitosamente</li>
+     *            <li>400 Bad Request - ID del body no coincide con ID de la ruta o
+     *            datos inválidos</li>
+     *            <li>404 Not Found - Animal no encontrado</li>
+     *            </ul>
+     */
     public void actualizarAnimal(Context ctx) {
         int id = ctx.pathParamAsClass("id", Integer.class).get();
 
@@ -74,7 +164,6 @@ public class AnimalesController {
                 return;
             }
 
-
             Animales resultado = animalesService.actualizarAnimal(animalActualizado);
 
             if (resultado != null) {
@@ -89,7 +178,20 @@ public class AnimalesController {
         }
     }
 
-
+    /**
+     * Maneja la petición DELETE para eliminar un animal.
+     * 
+     * @param ctx Contexto de Javalin (path parameter "id" requerido)
+     * 
+     *            <p>
+     *            Respuestas:
+     *            </p>
+     *            <ul>
+     *            <li>204 No Content - Animal eliminado correctamente</li>
+     *            <li>404 Not Found - Animal no encontrado o no se pudo
+     *            eliminar</li>
+     *            </ul>
+     */
     public void eliminarAnimal(Context ctx) {
 
         int id = ctx.pathParamAsClass("id", Integer.class).get();

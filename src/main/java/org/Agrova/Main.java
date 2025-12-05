@@ -8,8 +8,52 @@ import Repository.*;
 import Service.*;
 import Controller.*;
 import Routes.*;
+import Routes.EstadisticaMedicamentoRoutes;
 
+/**
+ * Clase principal de la aplicación Agrosystem Backend.
+ * Configura e inicializa el servidor Javalin con todas las dependencias,
+ * servicios, controladores y rutas REST para la gestión ganadera.
+ * 
+ * <p>
+ * Este backend proporciona una API REST completa para:
+ * </p>
+ * <ul>
+ * <li>Gestión de animales y registros ganaderos</li>
+ * <li>Control de medicamentos y tratamientos</li>
+ * <li>Registro de enfermedades y reportes médicos</li>
+ * <li>Autenticación de usuarios con JWT</li>
+ * <li>Estadísticas y análisis de datos</li>
+ * </ul>
+ * 
+ * <p>
+ * Arquitectura de capas implementada:
+ * </p>
+ * <ul>
+ * <li><b>Config</b>: Configuración de base de datos con HikariCP</li>
+ * <li><b>Model</b>: Entidades del dominio (POJOs)</li>
+ * <li><b>Repository</b>: Acceso a datos y operaciones CRUD</li>
+ * <li><b>Service</b>: Lógica de negocio y validaciones</li>
+ * <li><b>Controller</b>: Manejo de peticiones HTTP</li>
+ * <li><b>Routes</b>: Registro de endpoints en Javalin</li>
+ * </ul>
+ * 
+ * <p>
+ * El servidor inicia en el puerto 7000 con CORS habilitado.
+ * </p>
+ * 
+ * @author Agrosystem Team
+ * @version 1.0
+ */
 public class Main {
+    /**
+     * Punto de entrada de la aplicación.
+     * Inicializa la base de datos, crea todas las instancias de Repository, Service
+     * y Controller,
+     * configura el servidor Javalin con CORS y registra todas las rutas REST.
+     * 
+     * @param args Argumentos de línea de comandos (no utilizados)
+     */
     public static void main(String[] args) {
 
         ConfigDB.getDataSource();
@@ -50,9 +94,20 @@ public class Main {
         UsuarioController usuarioController = new UsuarioController(usuarioRepository, tokenManager);
 
         EstadisticasTratamientoRepository estadisticasTratamientoRepository = new EstadisticasTratamientoRepository();
-        EstadisticasTratamientoService estadisticasTratamientoService = new EstadisticasTratamientoService(estadisticasTratamientoRepository);
-        EstadisticasTratamientoController estadisticasTratamientoController = new EstadisticasTratamientoController(estadisticasTratamientoService);
-        EstadisticasTratamientoRoutes estadisticasTratamientoRoutes = new EstadisticasTratamientoRoutes(estadisticasTratamientoController);
+        EstadisticasTratamientoService estadisticasTratamientoService = new EstadisticasTratamientoService(
+                estadisticasTratamientoRepository);
+        EstadisticasTratamientoController estadisticasTratamientoController = new EstadisticasTratamientoController(
+                estadisticasTratamientoService);
+        EstadisticasTratamientoRoutes estadisticasTratamientoRoutes = new EstadisticasTratamientoRoutes(
+                estadisticasTratamientoController);
+
+        EstadisticaMedicamentoRepository estadisticaMedicamentoRepository = new EstadisticaMedicamentoRepository();
+        EstadisticaMedicamentoService estadisticaMedicamentoService = new EstadisticaMedicamentoService(
+                estadisticaMedicamentoRepository);
+        EstadisticaMedicamentoController estadisticaMedicamentoController = new EstadisticaMedicamentoController(
+                estadisticaMedicamentoService);
+        EstadisticaMedicamentoRoutes estadisticaMedicamentoRoutes = new EstadisticaMedicamentoRoutes(
+                estadisticaMedicamentoController);
 
         Javalin app = Javalin.create(config -> {
             config.bundledPlugins.enableCors(cors -> {
@@ -83,9 +138,7 @@ public class Main {
                             "reportes", "/reportes",
                             "tarjetas", "/tarjetas",
                             "pesos", "/pesos",
-                            "roles", "/rol"
-                    )
-            ));
+                            "roles", "/rol")));
         });
 
         app.get("/test", ctx -> {
@@ -94,11 +147,11 @@ public class Main {
         });
 
         app.post("/login", usuarioController::login);
-        app.post("/register", usuarioController::crearUsuario );
-        //jwtMiddleware.apply(app);
+        app.post("/register", usuarioController::crearUsuario);
+        // jwtMiddleware.apply(app);
         new EstadisticasRoutes(estadisticasController).register(app);
         new UsuarioRoutes(usuarioController).register(app);
-        new AnimalesRoutes(animalesController).register(app);  //rutas listas
+        new AnimalesRoutes(animalesController).register(app); // rutas listas
         new EnfermedadRoutes(enfermedadController).register(app);
         new MedicamentoRoutes(medicamentoController).register(app);
         new TratamientoRoutes(tratamientoController).register(app);
@@ -107,7 +160,7 @@ public class Main {
         new PesoRoutes(pesoController).register(app);
         new RolRoutes(rolController).register(app);
         new EstadisticasTratamientoRoutes(estadisticasTratamientoController).register(app);
-
+        estadisticaMedicamentoRoutes.register(app);
 
         System.out.println("✅ Todas las rutas registradas exitosamente");
         System.out.println("================================");
